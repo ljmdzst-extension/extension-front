@@ -3,10 +3,10 @@ import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
-import {  useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';
-import { Col, InputGroup} from 'react-bootstrap';
+import { Col, InputGroup } from 'react-bootstrap';
 
 import formData from '@/mocks/activityFormData.json';
 import Swal from 'sweetalert2';
@@ -122,6 +122,8 @@ export default function ActivityScreen() {
 
 	const closePlanification = () => {
 		setIsPlanificationOpen(!isPlanificationOpen);
+		mostrarActividades();
+		setSearchedActivities([]);
 	};
 
 	const selectCurrentForm = (formName: string) => {

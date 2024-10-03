@@ -361,7 +361,7 @@ span {
 	align-items: center;
 	gap: 10px;
 }
-.ConteinerEje {
+.ContainerEje {
 	width: 90%;
 	min-height: 120px;
 	display: flex;
@@ -370,7 +370,7 @@ span {
 	align-items: center;
 	padding: 10px;
 }
-.ConteinerPlan {
+.ContainerPlan {
 	width: 90%;
 	min-height: 120px;
 	display: flex;

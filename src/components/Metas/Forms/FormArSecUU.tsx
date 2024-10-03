@@ -1,14 +1,11 @@
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
-import Button from 'react-bootstrap/Button';
 import { useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { Row, Col } from 'react-bootstrap';
 import { ListaProgramasSIPPE } from '@/types/BasesProps';
-import { ErrorOutline } from '@mui/icons-material';
-import { setHayCambios } from '@/redux/actions/activityAction';
-import { useGuardarActividad } from '@/hooks/useGuardarActividad';
+import { Actividad } from '@/types/ActivityProps';
 
 const animatedComponents = makeAnimated();
 
@@ -26,18 +23,34 @@ interface Option {
 	label: string;
 }
 
-export default function FormArSecUU() {
-	const dispatch = useDispatch();
+interface Props {
+	activity: Actividad;
+	saveData: (data: Partial<Actividad>) => void;
+}
 
-	const { activity, hayCambios } = useSelector((state: RootState) => state.actividad);
+export default function FormArSecUU({ activity, saveData }: Props) {
 	const { bases, error } = useSelector((state: RootState) => state.metas);
-	const { guardarActividad } = useGuardarActividad();
 	const [dataLoaded, setDataLoaded] = useState(false);
 
 	const [relacionSeleccionadas1, setRelacionSeleccionadas1] = useState<Option[]>([]);
 	const [relacionSeleccionadas2, setRelacionSeleccionadas2] = useState<Option[]>([]);
 	const [relacionSeleccionadas3, setRelacionSeleccionadas3] = useState<Option[]>([]);
 	const [sippeSeleccionadas, setSippeSeleccionadas] = useState<Option[]>([]);
+
+	useEffect(() => {
+		if (dataLoaded) {
+			saveData({
+				listaRelaciones: Array.from(
+					new Set([
+						...relacionSeleccionadas1.map((el) => el.value),
+						...relacionSeleccionadas2.map((el) => el.value),
+						...relacionSeleccionadas3.map((el) => el.value),
+					]),
+				).sort((a, b) => a - b),
+				listaProgramasSIPPE: sippeSeleccionadas.map((el) => el.value),
+			});
+		}
+	}, [relacionSeleccionadas1, relacionSeleccionadas2, relacionSeleccionadas3, sippeSeleccionadas]);
 
 	const filtrarAreas = useCallback(
 		(nomRelacion: string): Option[] => {
@@ -85,47 +98,11 @@ export default function FormArSecUU() {
 			setSippeSeleccionadas(filtrarSippeSeleccionadas());
 
 			setDataLoaded(true);
-		} else {
 		}
-	}, [bases, error, filtrarAreas, filtrarRelacionesSeleccionadas, filtrarSippeSeleccionadas]);
-
-	useEffect(() => {
-		if (!dataLoaded) return;
-		checkForChanges();
-	}, [
-		dataLoaded,
-		relacionSeleccionadas1,
-		relacionSeleccionadas2,
-		relacionSeleccionadas3,
-		sippeSeleccionadas,
-	]);
-
-	const checkForChanges = () => {
-		// Comprueba si hay cambios
-
-		const relacionValues = Array.from(
-			new Set([
-				...relacionSeleccionadas1.map((el) => el.value),
-				...relacionSeleccionadas2.map((el) => el.value),
-				...relacionSeleccionadas3.map((el) => el.value),
-			]),
-		).sort((a, b) => a - b);
-		const sippeValues = sippeSeleccionadas.map((el) => el.value);
-
-		const cambios =
-			JSON.stringify(activity.listaRelaciones) !== JSON.stringify(relacionValues) ||
-			JSON.stringify(activity.listaProgramasSIPPE) !== JSON.stringify(sippeValues);
-		if (hayCambios === cambios) return;
-
-		if (cambios) {
-			dispatch(setHayCambios({ valor: true }));
-		} else {
-			dispatch(setHayCambios({ valor: false }));
-		}
-	};
+	}, [bases, error]);
 
 	return (
-		<div className=' d-flex flex-column h-100 px-4 gap-2'>
+		<>
 			<Row>
 				<Col>
 					<div className='Areas'>
@@ -210,26 +187,6 @@ export default function FormArSecUU() {
 					</div>
 				</Col>
 			</Row>
-			<Button
-				variant='success'
-				className='mt-auto mb-3 align-self-center'
-				onClick={() => {
-					guardarActividad({
-						...activity,
-						listaRelaciones: Array.from(
-							new Set([
-								...relacionSeleccionadas1.map((el) => el.value),
-								...relacionSeleccionadas2.map((el) => el.value),
-								...relacionSeleccionadas3.map((el) => el.value),
-							]),
-						),
-						listaProgramasSIPPE: Array.from(new Set([...sippeSeleccionadas.map((el) => el.value)])),
-					});
-				}}
-			>
-				Guardar Actividad{' '}
-				{hayCambios && <ErrorOutline style={{ marginLeft: '10px', color: 'yellow' }} />}
-			</Button>
-		</div>
+		</>
 	);
 }
