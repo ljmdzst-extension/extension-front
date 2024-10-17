@@ -56,19 +56,16 @@ const useActivityActions = (activityId: number) => {
     }, [activityId, errorAlert, navigate, successAlert]);
 
     const handleExitConfirmation = useCallback(() => {
-        Swal.fire({
+        return Swal.fire({
             title: '¿Quiere salir de la sección?',
             text: 'Los cambios no guardados se perderán.',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Salir',
             cancelButtonText: 'Cancelar',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Lógica para salir de la sección
-            }
-        });
+        }).then((result) => result.isConfirmed);  // Devolvemos el valor directamente
     }, []);
+    
 
     const showSuspensionModal = useCallback(() => {
         Swal.fire({

@@ -3,10 +3,10 @@ import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
-import {  useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';
-import { Col, InputGroup} from 'react-bootstrap';
+import { Col, InputGroup } from 'react-bootstrap';
 
 import formData from '@/mocks/activityFormData.json';
 import Swal from 'sweetalert2';
@@ -18,6 +18,7 @@ import LoadingSpinner from '@/components/Common/Spinner/LoadingSpinner';
 import { getListaActividadesPorArea, postActivity } from '@/services/api/private/metas';
 import PlanificationPanel from '@/components/Metas/Panels/PlanificationPanel';
 import { PanelActivityInfo } from '@/components/Metas/Panels/PanelActivityInfo';
+import CommonTitle from '@/components/Common/Text/CommonTitle';
 
 interface Activity {
 	idActividad: number;
@@ -122,6 +123,8 @@ export default function ActivityScreen() {
 
 	const closePlanification = () => {
 		setIsPlanificationOpen(!isPlanificationOpen);
+		mostrarActividades();
+		setSearchedActivities([]);
 	};
 
 	const selectCurrentForm = (formName: string) => {
@@ -145,8 +148,8 @@ export default function ActivityScreen() {
 			cancelButtonText: 'No, cancelar',
 		}).then((result) => {
 			if (result.isConfirmed) {
-				dispatch(setHayCambios({ valor: false }));
 				setCurrentFormSelected(formName);
+				dispatch(setHayCambios({ valor: false }));
 			}
 		});
 	};
@@ -196,12 +199,12 @@ export default function ActivityScreen() {
 				</Modal.Body>
 			</Modal>
 			<div
-				className=' d-flex align-items-center justify-content-between border  rounded-3 p-1 pb-0 mx-2 my-1  '
+				className=' d-flex align-items-center justify-content-between border rounded-3 p-1 pb-0 px-2  my-1  '
 				style={{ backgroundColor: '#fefefe' }}
 			>
-				<h3 className=' fw-bold' style={{ color: '#0a5d52' }}>
+				<CommonTitle underline bold>
 					{area?.nom}
-				</h3>
+				</CommonTitle>
 				<ArrowBack
 					fontSize='large'
 					className={`rounded ${isPlanificationOpen ? 'd-none' : ''}`}
@@ -227,9 +230,10 @@ export default function ActivityScreen() {
 								<LoadingSpinner />
 							) : (
 								<div className=' d-flex flex-column h-100 p-2 '>
-									<div className=' text-center  '>
-										<h4>Listado de Actividades</h4>
-									</div>
+									<CommonTitle bold underline size='small' textAlign='center'>
+										Listado de Actividades
+									</CommonTitle>
+
 									<InputGroup className='mb-3' size='sm'>
 										<Form.Control
 											onChange={onSearchChange}
@@ -270,8 +274,7 @@ export default function ActivityScreen() {
 										)}
 									</ListGroup>
 									<Button
-										variant='outline-success'
-										className=' mt-2 align-self-end mt-auto'
+										className=' mt-2 align-self-end mt-auto btn-primary'
 										onClick={handleShow}
 										disabled={!puedeEditar}
 									>
@@ -286,21 +289,28 @@ export default function ActivityScreen() {
 							{isLoading ? (
 								<LoadingSpinner />
 							) : (
-								<>
-									<h4 className=' text-center m-2'>Formulario</h4>
-									<ListGroup className=' mx-2 '>
+								<div className=' p-2'>
+									<CommonTitle
+										bold
+										underline
+										size='small'
+										textAlign='center'
+										color='var(--bs-secondary)'
+									>
+										Formularios
+									</CommonTitle>
+									<ListGroup>
 										{formData.map((item, index) => (
 											<ListGroup.Item
 												action
-												variant={
+												className={`text-break mx-auto my-1 rounded d-flex justify-content-center align-items-center ${
 													hayCambios && currentFormSelected === item.index
-														? 'warning'
+														? 'bg-warning text-dark' // bg-warning viene con texto oscuro
 														: currentFormSelected === item.index
-														? 'primary'
-														: 'secondary'
-												}
+														? 'bg-primary text-light' // Texto blanco para bg-primary
+														: 'bg-secondary text-light' // Texto blanco para bg-secondary
+												}`}
 												title={item.Title}
-												className='text-break mx-auto my-1 rounded d-flex justify-content-center align-items-center '
 												key={index}
 												onClick={() => {
 													selectCurrentForm(item.index);
@@ -319,7 +329,7 @@ export default function ActivityScreen() {
 											</ListGroup.Item>
 										))}
 									</ListGroup>
-								</>
+								</div>
 							)}
 						</>
 					)}

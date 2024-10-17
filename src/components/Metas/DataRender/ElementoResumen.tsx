@@ -48,16 +48,16 @@ const ElementoResumen = ({ element }: Props) => {
 
 	const renderArea = (data: number[], idTipoRelacion: number, nombreArea: string) => {
 		if (!data || data.length === 0) {
-			return null; // O cualquier otro componente o mensaje de aviso
+			return null;
 		}
 
 		const elementosArea = data
 			.map((idRelacion) => extraerRelacionCompleta(idRelacion, idTipoRelacion))
-			.filter(Boolean) //elimina los valores null, undefined, etc
-			.sort((a, b) => a.nom.localeCompare(b.nom)); // Ordena las areas por su propiedad 'nom'
+			.filter(Boolean)
+			.sort((a, b) => a.nom.localeCompare(b.nom));
 
 		if (elementosArea.length === 0) {
-			return null; // No hay elementos para renderizar
+			return null;
 		}
 
 		return (
@@ -87,12 +87,10 @@ const ElementoResumen = ({ element }: Props) => {
 			return <div>No hay objetivos cargados</div>;
 		}
 
-		// Filtrar los objetivos de bases.listaObjetivos que coincidan con los IDs de listaObjetivos
 		const objetivosFiltrados = bases?.listaObjetivos.filter((objetivo) =>
 			listaObjetivos.includes(objetivo.idObjetivo),
 		);
 
-		// Verificar si objetivosFiltrados es undefined
 		if (!objetivosFiltrados) {
 			return <div>No hay objetivos filtrados</div>;
 		}
@@ -100,7 +98,7 @@ const ElementoResumen = ({ element }: Props) => {
 		return (
 			<div className=' m-1'>
 				<div>
-					<h2>Objetivos estratégicos</h2>
+					<h5>Objetivos estratégicos</h5>
 					<ul>
 						{objetivosFiltrados.map(
 							(objetivo, index) =>
@@ -113,7 +111,7 @@ const ElementoResumen = ({ element }: Props) => {
 					</ul>
 				</div>
 				<div>
-					<h2>Plan institucional</h2>
+					<h5>Plan institucional</h5>
 					<ul>
 						{objetivosFiltrados.map(
 							(objetivo, index) =>
@@ -141,31 +139,31 @@ const ElementoResumen = ({ element }: Props) => {
 	};
 
 	return (
-		<div
-			className=' d-flex flex-column gap-2 border border-2 border-dark-subtle '
-			style={{ background: '#e5e5e5', fontSize: '14px' }}
-		>
-			<div>
-				<div style={{ ...styles.titleContainer, backgroundColor: '#08443c' }}>
-					<h5>Actividad: {idActividad}</h5>
-				</div>
-				<div className=' m-1'>
-					<p>{desc}</p>
-				</div>
+		<div style={styles.container}>
+			{/* Título de la primera sección de actividad, con estilo destacado */}
+			<div style={styles.titleContainerPrimary}>
+				<h5>Actividad: {idActividad}</h5>
 			</div>
 
-			<div>
+			{/* Descripción de la actividad */}
+			<div style={styles.sectionContainer}>
+				<p style={styles.paragraph}>{desc}</p>
+			</div>
+
+			{/* Objetivos */}
+			<div style={styles.sectionContainer}>
 				<div style={styles.titleContainer}>Lista Objetivos</div>
 				<div>{renderObjetivos()}</div>
 			</div>
 
-			<div>
+			{/* Metas */}
+			<div style={styles.sectionContainer}>
 				<div style={styles.titleContainer}>Metas</div>
 				<div style={styles.gridContainer}>
 					<div style={styles.gridTitle}>Meta/Resultado esperado</div>
 					<div style={styles.gridTitle}>Resultado alcanzado</div>
 					<div style={styles.gridTitle}>Observaciones</div>
-					<div style={styles.gridTitle}>Valoracion</div>
+					<div style={styles.gridTitle}>Valoración</div>
 				</div>
 
 				{listaMetas?.length ? (
@@ -187,15 +185,16 @@ const ElementoResumen = ({ element }: Props) => {
 						</div>
 					))
 				) : (
-					<div className=' m-1'>No hay metas cargadas</div>
+					<div style={styles.paragraph}>No hay metas cargadas</div>
 				)}
 			</div>
 
-			<div>
-				<div style={{ ...styles.titleContainer }}>Áreas</div>
-				<div className='m-1'>
+			{/* Áreas */}
+			<div style={styles.sectionContainer}>
+				<div style={styles.titleContainer}>Áreas</div>
+				<div style={styles.paragraph}>
 					{listaRelaciones?.length !== undefined && listaRelaciones.length > 0 ? (
-						<ol>
+						<ol style={styles.list}>
 							{renderArea(listaRelaciones, 1, 'Internas Secretaria')}
 							{renderArea(listaRelaciones, 2, 'Otras áreas centrales')}
 							{renderArea(listaRelaciones, 3, 'Unidades Académicas involucradas')}
@@ -204,40 +203,105 @@ const ElementoResumen = ({ element }: Props) => {
 								: null}
 						</ol>
 					) : (
-						<p>No hay Areas Cargadas</p>
+						<p>No hay Áreas Cargadas</p>
 					)}
 				</div>
+			</div>
+
+			{/* Link de referencia */}
+			<div style={styles.linkContainer}>
+				<a
+					href='https://www.unl.edu.ar/pie/wp-content/uploads/sites/55/2021/02/Plan-Institucional-Estrat%C3%A9gico.pdf'
+					target='_blank'
+					rel='noopener noreferrer'
+					style={styles.link}
+				>
+					Plan Institucional Estratégico
+				</a>
 			</div>
 		</div>
 	);
 };
 
 const styles = {
-	titleContainer: {
-		backgroundColor: '#0c6a5d',
-		border: 'none',
+	container: {
+		display: 'flex',
+		flexDirection: 'column' as const,
+		border: '2px solid #cfcfcf',
+		backgroundColor: '#e5e5e5',
+		fontSize: '14px',
+		marginBottom: '32px',
+		borderRadius: '8px',
+		boxShadow: '0 4px 8px rgba(0, 0, 0, 0.05)',
+	},
+	titleContainerPrimary: {
+		backgroundColor: '#0a4b43',
 		color: 'white',
 		textAlign: 'center' as const,
-		paddingTop: '1px',
-		paddingBottom: '1px',
-	} as React.CSSProperties,
+		padding: '10px 0',
+		fontSize: '18px',
+		fontWeight: 'bold',
+		borderRadius: '8px 8px 0 0',
+	},
+	titleContainer: {
+		backgroundColor: '#4A9F95',
+		color: 'white',
+		textAlign: 'center' as const,
+		padding: '10px 0',
+		fontSize: '18px',
+		borderRadius: '8px 8px 0 0',
+		fontWeight: 'bold',
+	},
+	sectionContainer: {
+		margin: '8px 0',
+	},
+	paragraph: {
+		margin: '8px',
+		lineHeight: '1.5',
+	},
 	gridContainer: {
 		display: 'grid',
 		gridTemplateColumns: 'repeat(4, 1fr)',
-		gap: '8px',
-	} as React.CSSProperties,
+		backgroundColor: '#fff',
+		borderRadius: '8px',
+		boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+	},
 	gridTitle: {
-		border: '1px solid #ccc',
-		padding: '8px',
-		backgroundColor: 'lightgray',
+		padding: '12px',
+		backgroundColor: '#d9e7e6',
 		fontWeight: 'bold',
-	} as React.CSSProperties,
+		textAlign: 'center' as const,
+		borderBottom: '2px solid #ccc',
+		borderRadius: '8px 8px 0 0',
+	},
 	gridItem: {
-		width: '100%',
-		border: '1px solid #ccc',
-		padding: '8px',
-		wordBreak: 'break-word',
-	} as React.CSSProperties,
+		padding: '12px',
+		backgroundColor: '#f9f9f9',
+		border: '1px solid #e0e0e0',
+		borderRadius: '4px',
+	},
+	link: {
+		color: '#08443c',
+		textDecoration: 'underline',
+		fontStyle: 'italic',
+	},
+	gridItemHover: {
+		backgroundColor: '#e0f2f1',
+	},
+	list: {
+		listStyleType: 'none',
+		padding: 0,
+	},
+	listItem: {
+		marginBottom: '8px',
+	},
+	listItemArea: {
+		marginBottom: '4px',
+	},
+	linkContainer: {
+		textAlign: 'end' as const,
+		padding: '8px 16px',
+	},
 };
 
 export default ElementoResumen;

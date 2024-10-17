@@ -181,7 +181,7 @@ export const ModalMember = ({ show, handleClose, memberList, handleRoles }: Moda
 				<button className='btn btn-secondary' onClick={handleClose}>
 					Cerrar
 				</button>
-				<button className='btn btn-primary' onClick={handleClose}>
+				<button className='btn btn-primary-custom' onClick={handleClose}>
 					Guardar
 				</button>
 			</Modal.Footer>

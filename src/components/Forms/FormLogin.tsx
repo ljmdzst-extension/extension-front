@@ -104,7 +104,7 @@ const FormLogin = () => {
 			/>
 
 			<div className='d-flex justify-content-center mt-2'>
-				<Button variant='primary' type='submit' className='btn btn-primary' disabled={loading}>
+				<Button type='submit' className='btn btn-primary-custom' disabled={loading}>
 					{loading ? 'Ingresando...' : 'Ingresar'}
 				</Button>
 			</div>

@@ -49,9 +49,12 @@ const PrivateLayout = ({ children }: any) => {
 
 	return (
 		<div className='d-flex flex-column'>
-			<div className='vh-100 pb-4' style={{ backgroundColor: '#efe6e6' }}>
+			<div className='vh-100 pb-4' style={{ backgroundColor: 'var(--bs-principal-background)' }}>
 				<NavBar />
-				<div style={{ backgroundColor: '#efe6e6', height: availableHeight, paddingBottom: '1rem' }}>
+				<div
+					className=' container-fluid'
+					style={{ backgroundColor: 'var(--bs-principal-background)', height: availableHeight, paddingBottom: '1rem' }}
+				>
 					{children} {/* children se usa para componentes que envolvemos */}
 					<Outlet /> {/* Outlet se usa para rutas anidadas */}
 				</div>

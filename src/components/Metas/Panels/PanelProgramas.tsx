@@ -93,7 +93,7 @@ export default function PanelProgramas() {
 						<Card.Text style={{ textAlign: 'center' }}>
 							Para obtener un análisis de datos generales, presione en "Ver resumen"
 						</Card.Text>
-						<Button variant='success' onClick={() => navigation('/gestion/metas/graficas')}>
+						<Button className=' btn-primary' onClick={() => navigation('/gestion/metas/graficas')}>
 							Ver Resumen
 						</Button>
 					</Card.Body>
