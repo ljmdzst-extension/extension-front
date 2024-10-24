@@ -47,22 +47,26 @@ const PlanificationPanel = ({
 		}
 	}, [currentFormSelected]);
 
+	const closePanels = async () => {
+		if (hayCambios && isFormOpen) {
+			const isConfirmed = await handleExitConfirmation();
+			if (isConfirmed) {
+				setIsFormOpen(false);
+				setIndexForm('');
+				cleanFormSelected();
+			}
+		} else {
+			closePlanification();
+		}
+	};
+
 	return (
 		<div className='h-100'>
 			{isLoading ? (
 				<LoadingSpinner />
 			) : (
 				<>
-					<ActivityHeader
-						name={name}
-						hayCambios={hayCambios}
-						isFormOpen={isFormOpen}
-						closePlanification={closePlanification}
-						cleanFormSelected={cleanFormSelected}
-						handleModalShow={handleExitConfirmation}
-						setIsFormOpen={setIsFormOpen}
-						setIndexForm={setIndexForm}
-					/>
+					<ActivityHeader name={name} closePanelsFunction={closePanels} />
 					{indexForm === '' ? (
 						<ActivityContent
 							activity={activity}

@@ -4,7 +4,7 @@ import Grafico from '@/components/Common/Graficos/Grafico';
 import { useGraphics } from '@/hooks/useGraphics';
 import { useNavigate } from 'react-router-dom';
 import { ArrowBack } from '@mui/icons-material';
-import LoadingSpinner from '@/components/Common/Spinner/LoadingSpinner';
+import CommonTitle from '@/components/Common/Text/CommonTitle';
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: currentYear - 2022 }, (_, i) => 2023 + i);
@@ -35,7 +35,7 @@ const UACOLORS = [
 type ChartType = 'line' | 'bar' | 'pie';
 const GraphicsScreen = () => {
 	const [year, setYear] = useState(currentYear);
-	const { graficoEjes, graficoObjEst, graficoLy, graficoUUAA, isLoading } = useGraphics({ year });
+	const { graficoEjes, graficoObjEst, graficoLy, graficoUUAA } = useGraphics({ year });
 
 	const navigation = useNavigate();
 
@@ -48,8 +48,11 @@ const GraphicsScreen = () => {
 			className='d-flex flex-column m-2 border rounded h-100'
 			style={{ backgroundColor: '#fefefe' }}
 		>
-			<div className='d-flex justify-content-between align-items-center m-2'>
-				<h2 className='m-0 flex-grow-1 text-center'>Gráficos y resúmenes</h2>
+			<div className='d-flex justify-content-between align-items-center '>
+				{/* <h2 className='m-0 flex-grow-1 text-center'>Gráficos y resúmenes</h2> */}
+				<CommonTitle bold underline textAlign='center'>
+					Gráficos y resúmenes
+				</CommonTitle>
 				<ArrowBack
 					fontSize='large'
 					className='m-1 rounded cursor-pointer'
@@ -59,7 +62,6 @@ const GraphicsScreen = () => {
 					}}
 				/>
 			</div>
-
 			<div className='d-flex justify-content-center align-items-center m-2'>
 				<label htmlFor='year-select'>Selecciona el año: </label>
 				<select id='year-select' value={year} onChange={handleYearChange}>
@@ -70,7 +72,7 @@ const GraphicsScreen = () => {
 					))}
 				</select>
 			</div>
-			<Container fluid className='h-100 overflow-y-scroll overflow-x-hidden custom-scrollbar'>
+			<Container fluid className='h-100 overflow-y-scroll overflow-x-hidden custom-scrollbar px-5'>
 				<Row style={{ height: '90%', maxHeight: '600px' }} gap={2}>
 					{[
 						{
@@ -109,21 +111,31 @@ const GraphicsScreen = () => {
 						<Col key={index} md={6} className=' mb-3'>
 							<div
 								className='d-flex flex-column border rounded w-100 h-100 p-2 text-center '
-								style={{ backgroundColor: '#f5f5f5', minHeight: '400px', maxWidth: '100%' }}
+								style={{
+									backgroundColor: 'var(--bs-secondary)',
+									minHeight: '350px',
+									maxWidth: '100%',
+								}}
 							>
-								<h4>{item.title}</h4>
-								{isLoading ? (
-									<LoadingSpinner />
-								) : (
-									<Grafico
-										dataKey={item.dataKey}
-										data={item.data}
-										type={item.type}
-										valueKeys={['cantActividades']}
-										legend={item.legend}
-										customColors={item.colors}
-									/>
-								)}
+								<CommonTitle
+									padding='.2rem'
+									size='small'
+									textAlign='center'
+									underline
+									color='white'
+								>
+									{item.title}
+								</CommonTitle>
+
+								<Grafico
+									dataKey={item.dataKey}
+									data={item.data}
+									type={item.type}
+									valueKeys={['cantActividades']}
+									legend={item.legend}
+									customColors={item.colors}
+									
+								/>
 							</div>
 						</Col>
 					))}

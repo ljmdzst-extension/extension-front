@@ -272,7 +272,7 @@ const FormUsers: React.FC<FormUsersProps> = ({ userData, onClose, updateList }) 
 					const isSelected = getPrograms('user').some(
 						(selected) => selected.value === program.value,
 					);
-					return `<button class="swal2-program-button btn btn-primary btn-sm m-1" data-value="${
+					return `<button class="swal2-program-button btn btn-primary-custom btn-sm m-1" data-value="${
 						program.value
 					}" ${isSelected ? 'disabled' : ''}>${program.label}</button>`;
 				})

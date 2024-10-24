@@ -3,10 +3,10 @@ import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
-import {  useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';
-import { Col, InputGroup} from 'react-bootstrap';
+import { Col, InputGroup } from 'react-bootstrap';
 
 import formData from '@/mocks/activityFormData.json';
 import Swal from 'sweetalert2';
@@ -18,6 +18,8 @@ import LoadingSpinner from '@/components/Common/Spinner/LoadingSpinner';
 import { getListaActividadesPorArea, postActivity } from '@/services/api/private/metas';
 import PlanificationPanel from '@/components/Metas/Panels/PlanificationPanel';
 import { PanelActivityInfo } from '@/components/Metas/Panels/PanelActivityInfo';
+import CommonTitle from '@/components/Common/Text/CommonTitle';
+import CommonIconWithTooltip from '@/components/Common/Icon/CommonIconWithTooltip';
 
 interface Activity {
 	idActividad: number;
@@ -122,6 +124,8 @@ export default function ActivityScreen() {
 
 	const closePlanification = () => {
 		setIsPlanificationOpen(!isPlanificationOpen);
+		mostrarActividades();
+		setSearchedActivities([]);
 	};
 
 	const selectCurrentForm = (formName: string) => {
@@ -145,8 +149,8 @@ export default function ActivityScreen() {
 			cancelButtonText: 'No, cancelar',
 		}).then((result) => {
 			if (result.isConfirmed) {
-				dispatch(setHayCambios({ valor: false }));
 				setCurrentFormSelected(formName);
+				dispatch(setHayCambios({ valor: false }));
 			}
 		});
 	};
@@ -196,20 +200,27 @@ export default function ActivityScreen() {
 				</Modal.Body>
 			</Modal>
 			<div
-				className=' d-flex align-items-center justify-content-between border  rounded-3 p-1 pb-0 mx-2 my-1  '
+				className=' d-flex align-items-center justify-content-between border rounded-3 p-1 my-1'
 				style={{ backgroundColor: '#fefefe' }}
 			>
-				<h3 className=' fw-bold' style={{ color: '#0a5d52' }}>
+				<CommonTitle underline bold>
 					{area?.nom}
-				</h3>
-				<ArrowBack
-					fontSize='large'
-					className={`rounded ${isPlanificationOpen ? 'd-none' : ''}`}
-					style={{ background: '#0a5d52', color: 'white' }}
-					onClick={() => {
-						navigation('/gestion/metas');
-					}}
-				/>
+				</CommonTitle>
+				<div className={`rounded ${isPlanificationOpen ? 'd-none' : ''}`}>
+					<CommonIconWithTooltip
+						tooltipText='Atras'
+						Icon={ArrowBack}
+						onClick={() => {
+							navigation('/gestion/metas');
+						}}
+						style={{
+							background: '#0a5d52',
+							color: 'white',
+							borderRadius: '.3rem',
+							fontSize: '34px',
+						}}
+					/>
+				</div>
 			</div>
 
 			<div className={` h-100 d-flex justify-content-around gap-1 mx-3 `}>
@@ -227,10 +238,17 @@ export default function ActivityScreen() {
 								<LoadingSpinner />
 							) : (
 								<div className=' d-flex flex-column h-100 p-2 '>
-									<div className=' text-center  '>
-										<h4>Listado de Actividades</h4>
-									</div>
-									<InputGroup className='mb-3' size='sm'>
+									<CommonTitle
+										bold
+										underline
+										size='small'
+										textAlign='center'
+										color='var(--bs-secondary)'
+									>
+										Listado de Actividades
+									</CommonTitle>
+
+									<InputGroup className='my-2' size='sm'>
 										<Form.Control
 											onChange={onSearchChange}
 											size='sm'
@@ -242,14 +260,13 @@ export default function ActivityScreen() {
 											<Search />
 										</InputGroup.Text>
 									</InputGroup>
-									<ListGroup className=' mb-2 overflow-y-auto custom-scrollbar '>
+									<ListGroup className=' mb-2 overflow-y-auto custom-scrollbar pe-2 '>
 										{(searchedActivities.length > 0 ? searchedActivities : arrayActivity).map(
 											(item, index) => (
 												<ListGroup.Item
 													action
-													variant='secondary'
 													title={item.desc}
-													className='mx-auto my-1 rounded d-flex align-items-center '
+													className={`text-break mx-auto my-1 rounded d-flex justify-content-center align-items-center list-item-hover`}
 													key={index}
 													onClick={() => {
 														handleButtonClick(item.idActividad);
@@ -270,8 +287,7 @@ export default function ActivityScreen() {
 										)}
 									</ListGroup>
 									<Button
-										variant='outline-success'
-										className=' mt-2 align-self-end mt-auto'
+										className=' mt-2 align-self-end mt-auto btn-primary'
 										onClick={handleShow}
 										disabled={!puedeEditar}
 									>
@@ -286,21 +302,26 @@ export default function ActivityScreen() {
 							{isLoading ? (
 								<LoadingSpinner />
 							) : (
-								<>
-									<h4 className=' text-center m-2'>Formulario</h4>
-									<ListGroup className=' mx-2 '>
+								<div className=' p-2'>
+									<CommonTitle
+										bold
+										underline
+										size='small'
+										textAlign='center'
+										color='var(--bs-secondary)'
+									>
+										Formularios
+									</CommonTitle>
+									<ListGroup>
 										{formData.map((item, index) => (
 											<ListGroup.Item
 												action
-												variant={
-													hayCambios && currentFormSelected === item.index
-														? 'warning'
-														: currentFormSelected === item.index
-														? 'primary'
-														: 'secondary'
-												}
+												className={`text-break mx-auto my-1 rounded d-flex justify-content-center align-items-center ${
+													currentFormSelected === item.index
+														? 'bg-primary text-light'
+														: 'bg-secondary text-light'
+												}`}
 												title={item.Title}
-												className='text-break mx-auto my-1 rounded d-flex justify-content-center align-items-center '
 												key={index}
 												onClick={() => {
 													selectCurrentForm(item.index);
@@ -319,7 +340,7 @@ export default function ActivityScreen() {
 											</ListGroup.Item>
 										))}
 									</ListGroup>
-								</>
+								</div>
 							)}
 						</>
 					)}

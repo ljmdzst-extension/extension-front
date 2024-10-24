@@ -121,7 +121,7 @@ export const PanelActivityInfo: React.FC<Props> = ({
 
 	return (
 		<Container
-			className='py-4 h-100 overflow-y-auto custom-scrollbar fluid'
+			className='py-3 h-100 overflow-y-auto custom-scrollbar fluid'
 			style={{ maxHeight: 'calc(100vh - 130px)', height: '100%' }}
 		>
 			<Row>

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Row, Col, Container, Button } from 'react-bootstrap';
+import CommonTitle from '@/components/Common/Text/CommonTitle';
 
 const ManagementScreen = () => {
 	const navigation = useNavigate();
@@ -11,16 +12,13 @@ const ManagementScreen = () => {
 			className='my-2 border rounded h-100 '
 			style={{ backgroundColor: 'rgba(245, 245, 245, 0.959)' }}
 		>
-			<div className=' my-2'>
-				<h2 className='text-center' style={{ color: '#0a5d52' }}>
-					Seleccionar la plataforma a la que desee acceder{' '}
-				</h2>
-			</div>
+			<CommonTitle textAlign='center' underline bold size='medium' padding='5px'>
+				Seleccionar la plataforma a la que desee acceder
+			</CommonTitle>
 			<Row className='my-2'>
 				<Col className='text-center' xs={12} md={4}>
 					<Button
-						variant='success'
-						className=' w-100'
+						className=' btn-secondary w-100'
 						style={{ height: '50px' }}
 						onClick={() => handlerClick('/gestion/metas')}
 					>
@@ -29,8 +27,7 @@ const ManagementScreen = () => {
 				</Col>
 				<Col className='text-center' xs={12} md={4}>
 					<Button
-						variant='success'
-						className=' w-100'
+						className=' btn-secondary w-100'
 						style={{ height: '50px' }}
 						onClick={() => handlerClick('/gestion/proyectos')}
 						disabled
@@ -40,8 +37,7 @@ const ManagementScreen = () => {
 				</Col>
 				<Col className='text-center' xs={12} md={4}>
 					<Button
-						variant='success'
-						className=' w-100'
+						className=' btn-secondary w-100'
 						style={{ height: '50px' }}
 						onClick={() => handlerClick('/gestion/programas')}
 						disabled

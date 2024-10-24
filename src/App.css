@@ -5,6 +5,141 @@
 	font-family: 'Roboto', sans-serif;
 }
 
+/* Colores principales y secundarios con texto en blanco */
+:root {
+  /* Color principal personalizado */
+  --bs-primary: #08443c;
+  --bs-primary-rgb: 8, 68, 60;
+
+  /* Color secundario personalizado (Variante de verde) */
+  --bs-secondary: #256d64;
+  --bs-secondary-rgb: 37, 109, 100;
+  
+  /* Texto blanco para elementos primarios */
+  --bs-primary-text: #ffffff;
+  
+  /* Botones primarios */
+  --bs-btn-primary-color: #ffffff; 
+  --bs-btn-primary-bg: var(--bs-primary);
+  --bs-btn-primary-border-color: var(--bs-primary);
+  --bs-btn-primary-hover-bg: #06332b;
+  --bs-btn-primary-hover-border-color: #06332b;
+  --bs-btn-primary-focus-shadow-rgb: 8, 68, 60;
+
+
+	/* Fondo principal */
+	--bs-principal-background: #d6e9e6;
+
+  /* Texto blanco para elementos secundarios */
+  --bs-secondary-text: #ffffff;
+  
+  /* Botones secundarios */
+  --bs-btn-secondary-color: #ffffff; 
+  --bs-btn-secondary-bg: var(--bs-secondary);
+  --bs-btn-secondary-border-color: var(--bs-secondary);
+  --bs-btn-secondary-hover-bg: #1f5c58;
+  --bs-btn-secondary-hover-border-color: #1f5c58;
+  --bs-btn-secondary-focus-shadow-rgb: 37, 109, 100;
+
+  /* Bordes, sombras y elementos activos */
+  --bs-primary-shadow: rgba(8, 68, 60, 0.5);
+  --bs-primary-active-bg: var(--bs-btn-primary-hover-bg);
+  --bs-primary-hover-bg: var(--bs-btn-primary-hover-bg);
+  
+  --bs-secondary-shadow: rgba(37, 109, 100, 0.5);
+  --bs-secondary-active-bg: var(--bs-btn-secondary-hover-bg);
+  --bs-secondary-hover-bg: var(--bs-btn-secondary-hover-bg);
+}
+
+/* Botón personalizado primario outlined */
+.btn-primary-outlined {
+  background-color: transparent; 
+  color: var(--bs-primary); 
+  border: 2px solid var(--bs-primary); 
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; /* Transición suave */
+}
+
+.btn-primary-outlined:hover {
+  background-color: var(--bs-primary);
+  color: var(--bs-btn-primary-color); 
+  border-color: var(--bs-primary-hover-bg); 
+}
+
+.btn-primary-outlined:disabled {
+  background-color: transparent;
+  border-color: #cccccc; 
+  color: #cccccc;
+}
+
+/* Botón personalizado secundario outlined */
+.btn-secondary-outlined {
+  background-color: transparent; 
+  color: var(--bs-secondary); 
+  border: 2px solid var(--bs-secondary); 
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; 
+}
+
+.btn-secondary-outlined:hover {
+  background-color: var(--bs-secondary);
+  color: var(--bs-btn-secondary-color); 
+  border-color: var(--bs-secondary-hover-bg); 
+}
+
+.btn-secondary-outlined:disabled {
+  background-color: transparent;
+  border-color: #cccccc; 
+  color: #cccccc; 
+}
+
+
+/* Botón personalizado primario */
+.btn-primary  {
+  background-color: var(--bs-primary);
+  color: white; 
+  border-color: var(--bs-primary); 
+  transition: background-color 0.3s ease, border-color 0.3s ease; 
+}
+
+.btn-primary:hover {
+  background-color: var(--bs-primary-hover-bg); 
+  border-color: var(--bs-primary-hover-bg); 
+}
+
+.btn-primary:disabled {
+  background-color: #cccccc; 
+  border-color: #cccccc;
+}
+
+/* Botón personalizado secundario */
+.btn-secondary {
+  background-color: var(--bs-secondary); 
+  color: white; 
+  border-color: var(--bs-secondary); 
+  transition: background-color 0.3s ease, border-color 0.3s ease; 
+}
+
+.btn-secondary:hover {
+  background-color: var(--bs-secondary-hover-bg); 
+  border-color: var(--bs-secondary-hover-bg); 
+}
+
+.btn-secondary:disabled {
+  background-color: #cccccc; 
+  border-color: #cccccc;
+}
+
+.list-item-hover {
+    background-color: var(--bs-secondary); /* Default background color */
+    color: var(--bs-primary-text); /* Default text color */
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.list-item-hover:hover {
+    background-color: var(--bs-primary); /* Background color on hover */
+    color: var(--bs-primary-text); /* Text color on hover */
+}
+
+
 /*NavBar*/
 
 .invalid-tooltip {
@@ -361,7 +496,7 @@ span {
 	align-items: center;
 	gap: 10px;
 }
-.ConteinerEje {
+.ContainerEje {
 	width: 90%;
 	min-height: 120px;
 	display: flex;
@@ -370,7 +505,7 @@ span {
 	align-items: center;
 	padding: 10px;
 }
-.ConteinerPlan {
+.ContainerPlan {
 	width: 90%;
 	min-height: 120px;
 	display: flex;
@@ -738,7 +873,6 @@ th {
 
 /* Form Metas */
 
-
 .detail-icon {
 	cursor: pointer;
 }
@@ -894,5 +1028,4 @@ th {
 }
 .accordion:hover {
 	--bs-accordion-bg: #b6babe;
-	
 }
