@@ -14,6 +14,7 @@ export interface Actividad {
 	idActividad: number;
 	idArea: number;
 	nro: number;
+	anio : number;
 	desc: string;
 	listaProgramasSIPPE: number[];
 	listaObjetivos: number[];

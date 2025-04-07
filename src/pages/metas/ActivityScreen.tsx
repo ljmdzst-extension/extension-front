@@ -94,6 +94,7 @@ export default function ActivityScreen() {
 				idArea: area.idArea,
 				nro: arrayActivity.length + 1,
 				desc: term,
+				anio : Number(area.anio)
 			} as Actividad);
 
 			if (res.error) {
