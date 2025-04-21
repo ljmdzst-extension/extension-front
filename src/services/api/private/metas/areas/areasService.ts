@@ -33,7 +33,7 @@ export const getListaActividadesPorArea = async (
 	idArea: string,
 	anio: string,
 ): Promise<FetchListaActividades> => {
-	const url = `${basePath}/${idArea}/actividades/${anio}`;
+	const url = `${basePath}/${idArea}/${anio}`;
 
 	try {
 		const response = await privateAxiosInstance.get<FetchListaActividades>(url);
