@@ -5,6 +5,138 @@
 	font-family: 'Roboto', sans-serif;
 }
 
+/* Colores principales y secundarios con texto en blanco */
+:root {
+	/* Color principal personalizado */
+	--bs-primary: #08443c;
+	--bs-primary-rgb: 8, 68, 60;
+
+	/* Color secundario personalizado (Variante de verde) */
+	--bs-secondary: #256d64;
+	--bs-secondary-rgb: 37, 109, 100;
+
+	/* Texto blanco para elementos primarios */
+	--bs-primary-text: #ffffff;
+
+	/* Botones primarios */
+	--bs-btn-primary-color: #ffffff;
+	--bs-btn-primary-bg: var(--bs-primary);
+	--bs-btn-primary-border-color: var(--bs-primary);
+	--bs-btn-primary-hover-bg: #06332b;
+	--bs-btn-primary-hover-border-color: #06332b;
+	--bs-btn-primary-focus-shadow-rgb: 8, 68, 60;
+
+	/* Fondo principal */
+	--bs-principal-background: #d6e9e6;
+
+	/* Texto blanco para elementos secundarios */
+	--bs-secondary-text: #ffffff;
+
+	/* Botones secundarios */
+	--bs-btn-secondary-color: #ffffff;
+	--bs-btn-secondary-bg: var(--bs-secondary);
+	--bs-btn-secondary-border-color: var(--bs-secondary);
+	--bs-btn-secondary-hover-bg: #1f5c58;
+	--bs-btn-secondary-hover-border-color: #1f5c58;
+	--bs-btn-secondary-focus-shadow-rgb: 37, 109, 100;
+
+	/* Bordes, sombras y elementos activos */
+	--bs-primary-shadow: rgba(8, 68, 60, 0.5);
+	--bs-primary-active-bg: var(--bs-btn-primary-hover-bg);
+	--bs-primary-hover-bg: var(--bs-btn-primary-hover-bg);
+
+	--bs-secondary-shadow: rgba(37, 109, 100, 0.5);
+	--bs-secondary-active-bg: var(--bs-btn-secondary-hover-bg);
+	--bs-secondary-hover-bg: var(--bs-btn-secondary-hover-bg);
+}
+
+/* Botón personalizado primario outlined */
+.btn-primary-outlined {
+	background-color: transparent;
+	color: var(--bs-primary);
+	border: 2px solid var(--bs-primary);
+	transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; /* Transición suave */
+}
+
+.btn-primary-outlined:hover {
+	background-color: var(--bs-primary);
+	color: var(--bs-btn-primary-color);
+	border-color: var(--bs-primary-hover-bg);
+}
+
+.btn-primary-outlined:disabled {
+	background-color: transparent;
+	border-color: #cccccc;
+	color: #cccccc;
+}
+
+/* Botón personalizado secundario outlined */
+.btn-secondary-outlined {
+	background-color: transparent;
+	color: var(--bs-secondary);
+	border: 2px solid var(--bs-secondary);
+	transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-secondary-outlined:hover {
+	background-color: var(--bs-secondary);
+	color: var(--bs-btn-secondary-color);
+	border-color: var(--bs-secondary-hover-bg);
+}
+
+.btn-secondary-outlined:disabled {
+	background-color: transparent;
+	border-color: #cccccc;
+	color: #cccccc;
+}
+
+/* Botón personalizado primario */
+.btn-primary {
+	background-color: var(--bs-primary);
+	color: white;
+	border-color: var(--bs-primary);
+	transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.btn-primary:hover {
+	background-color: var(--bs-primary-hover-bg);
+	border-color: var(--bs-primary-hover-bg);
+}
+
+.btn-primary:disabled {
+	background-color: #cccccc;
+	border-color: #cccccc;
+}
+
+/* Botón personalizado secundario */
+.btn-secondary {
+	background-color: var(--bs-secondary);
+	color: white;
+	border-color: var(--bs-secondary);
+	transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.btn-secondary:hover {
+	background-color: var(--bs-secondary-hover-bg);
+	border-color: var(--bs-secondary-hover-bg);
+}
+
+.btn-secondary:disabled {
+	background-color: #cccccc;
+	border-color: #cccccc;
+}
+
+.list-item-hover {
+	background-color: var(--bs-secondary); /* Default background color */
+	color: var(--bs-primary-text); /* Default text color */
+	transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.list-item-hover:hover {
+	background-color: var(--bs-primary); /* Background color on hover */
+	color: var(--bs-primary-text); /* Text color on hover */
+}
+
 /*NavBar*/
 
 .invalid-tooltip {
@@ -27,21 +159,16 @@
 	cursor: pointer;
 }
 
-.NavBar {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	background-color: #08443c;
-}
-.NavBar a {
-	text-decoration: none;
-	color: white;
-	font-size: 14px;
+span {
+	font-weight: bolder;
 }
 
-.logout-icon {
-	cursor: pointer;
+th {
+	font-size: small;
+	vertical-align: middle;
 }
+
+/* NOTE: Panel Programas */
 
 .imgCard {
 	width: 100%;
@@ -53,10 +180,7 @@
 	background-color: #009cb3;
 	object-fit: cover;
 }
-.fontYear {
-	color: white;
-	font-weight: bolder;
-}
+
 .ContainerCardMenu {
 	display: flex;
 	align-items: center;
@@ -71,698 +195,20 @@
 	border-radius: 10px;
 	background-color: rgba(245, 245, 245, 0.959);
 }
-.menu {
-	display: flex;
-	align-items: center;
-	justify-content: space-around;
-	gap: 10px;
-}
-.programa {
-	background-color: rgba(245, 245, 245, 1);
-	padding: 10px;
-	border-radius: 9px;
-	cursor: pointer;
-	transition: all 0.5s;
-}
-.programa:hover {
-	border: 1px solid white;
-	transform: scale(1.05);
-}
-.programa:active {
-	width: 500px;
-}
-.ConteinerMenuSubprogram {
-	width: 500px;
-	display: flex;
-	flex-direction: column;
-	justify-content: space-around;
-	background-color: rgba(245, 245, 245, 1);
-	border-radius: 10px;
-	padding: 7px;
-}
-
-/*Main*/
-.ConteinerCards {
-	display: flex;
-	flex-direction: row;
-	justify-content: center;
-	align-items: center;
-	flex-wrap: wrap;
-	min-height: 80vh;
-}
-.ConteinerMain {
-	background-color: rgb(255, 255, 255);
-	min-height: 80vh;
-}
-
-/*Menu Activity*/
-.MenuActivity {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	gap: 15px;
-	width: 30%;
-	min-height: 70vh;
-	padding: 10px;
-	border: 3px solid #c0c0c0;
-}
-.ConteinerActivity {
-	display: flex;
-	align-items: flex-start;
-	justify-content: center;
-	min-height: 80vh;
-	width: 100%;
-	padding: 10px;
-}
-.Activity {
-	background-color: rgba(245, 245, 245, 1);
-	width: 200px;
-	height: 50px;
-	padding: 10px;
-	border-radius: 9px;
-	cursor: pointer;
-	transition: all 0.5s;
-}
-.Activity:hover {
-	border: 1px solid white;
-	transform: scale(1.05);
-}
-.MenuOptions {
-	width: 30%;
-	min-height: 40vh;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	align-self: center;
-	justify-content: center;
-	gap: 20px;
-	border-radius: 10px;
-}
-.Options {
-	background-color: rgb(214, 214, 214);
-	width: 300px;
-	height: 50px;
-	text-align: center;
-	padding: 10px;
-	border-radius: 9px;
-	cursor: pointer;
-	transition: all 0.5s;
-	text-decoration: none;
-	color: black;
-}
-.Options:hover {
-	border: 1px solid white;
-	transform: scale(1.05);
-}
-.MenuOptionsAux {
-	display: flex;
-	justify-content: space-around;
-	padding: 10px;
-	background-color: rgb(233, 233, 233);
-}
-.MenuPlanification {
-	width: 100%;
-	min-height: 80vh;
-	border-radius: 4px;
-	background-color: rgba(245, 245, 245, 1);
-	display: flex;
-	flex-direction: column;
-}
-.ConteinerColumn {
-	display: flex;
-	width: 100%;
-	height: 70%;
-}
-.Column {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: space-around;
-	height: 100%;
-	width: 50%;
-	gap: 10px;
-}
-.Form {
-	background-color: rgba(156, 156, 156, 1);
-	width: 400px;
-	height: 80px;
-	text-align: center;
-	padding: 10px;
-	border-radius: 9px;
-	cursor: pointer;
-}
-.ButtonPlanification {
-	display: flex;
-	justify-content: space-around;
-	align-items: center;
-	width: 100%;
-	height: 50px;
-}
-
-/*Footer*/
-.ConteinerFooter {
-	display: flex;
-	justify-content: space-around;
-	align-items: center;
-	height: 20vh;
-	width: 100%;
-	background-color: rgb(245, 245, 245);
-}
-.ConteinerContacto {
-	display: flex;
-	flex-direction: column;
-}
-.ConteinerLinks {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-}
-
-.FormDescription {
-	width: 100%;
-	min-height: 500px;
-	display: flex-start;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: center;
-}
-.FormOrgInst {
-	width: 100%;
-	min-height: 500px;
-	background-color: rgb(227, 230, 230);
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: flex-start;
-	gap: 20px;
-	padding: 10px;
-}
-.ListaInstituciones {
-	width: 100%;
-	min-height: 220px;
-	background-color: rgb(243, 243, 243);
-	padding: 10px;
-}
-
-.table-overflow {
-	height: 220px;
-	overflow-y: auto;
-}
-
-.ListaInstituciones,
-h3 {
-	font-weight: 100;
-}
-.inputInstituciones {
-	border: 1px solid rgb(187, 187, 187);
-	height: 30px;
-	width: 300px;
-	font-size: medium;
-	padding: 5px;
-}
-.FormOrgInst,
-h2 {
-	align-self: center;
-}
-.buttonCloseForm {
-	align-self: start;
-	justify-self: end;
-	width: 40px;
-	height: 35px;
-	padding: 0;
-}
-h1 {
-	width: 100%;
-	text-align: center;
-}
-.ConteinerTitle {
-	display: flex;
-	align-items: flex-end;
-	width: 100%;
-	border-radius: 5px;
-	background-color: #c0c0c0;
-}
-
-/*Periodo*/
-.ConteinerDate {
-	width: 60%;
-	height: 515px;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex-direction: column;
-	border: 3px solid #c0c0c0;
-	border-radius: 10px;
-	padding: 10px;
-}
-.ConteinerRange {
-	display: flex;
-	justify-content: space-around;
-	padding: 20px;
-}
-
-.ConteinerDay {
-	width: 30%;
-	min-height: 85%;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: flex-start;
-	gap: 20px;
-	padding: 10px;
-	border-radius: 10px;
-	border: 3px solid #c0c0c0;
-}
-.ConteinerBigDate {
-	width: 100%;
-	min-height: 100%;
-	display: flex;
-	justify-content: center;
-	align-items: flex-start;
-	gap: 10px;
-}
-
-.ConteinerDaysSelected {
-	width: 90%;
-	min-height: 200px;
-}
-span {
-	font-weight: bolder;
-}
 
 /*Form PIE*/
-.FormPie {
-	width: 100%;
-	min-height: 400px;
-	display: flex;
-	flex-direction: column;
-	justify-content: space-around;
-	align-items: center;
-	gap: 10px;
-}
-.ConteinerEje {
-	width: 90%;
-	min-height: 120px;
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: center;
-	padding: 10px;
-}
-.ConteinerPlan {
-	width: 90%;
-	min-height: 120px;
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: center;
-}
-.FormPlan {
-	width: 70%;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-}
-.TitlePie {
-	margin: 5px;
-}
-.SubtitlePie {
-	align-self: start;
-}
-.FormEje {
-	width: 70%;
-}
-.ConteinerChecksPlan {
-	width: 100%;
-	height: 70%;
-	display: flex;
-	justify-content: space-between;
-	align-items: flex-start;
-}
-input.form-check-input:checked {
-	background-color: #198754;
-	border-color: #198754;
-}
-.Lie {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: 2.5px;
-	justify-content: space-around;
-}
-.Eje {
-	width: 100%;
-	height: 50px;
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	gap: 50px;
-	justify-content: space-between;
-}
-
-.text-guide {
-	font-size: 0.8rem;
-	font-style: italic;
-}
-
-/*Form ObjetivoEstrategico*/
-.FormObjetivo {
-	width: 90%;
-	min-height: 350px;
-	display: flex;
-	flex-direction: column;
-	justify-content: space-around;
-	align-items: center;
-	padding: 10px;
-	border-radius: 10px;
-}
-.FormObj {
-	width: 80%;
-	height: 300px;
-	display: flex;
-	flex-direction: column;
-	justify-content: space-around;
-}
-.Obj {
-	width: 100%;
-	height: 80%;
-	display: flex;
-	margin-left: 5px;
-	flex-direction: column;
-	justify-content: space-around;
-}
-.SubtitleObj {
-	margin: 5px;
-}
 
 .form-check-input {
 	background-color: white;
 	border-color: #002b4e;
 }
 
-/*FormArSecUU*/
-.FormArSecuu {
-	width: 100%;
-	min-height: 90%;
-	display: flex;
-	flex-direction: column;
-	justify-content: space-around;
-	padding: 10px;
-	gap: 20px;
-}
-.Areas {
-	width: 100%;
-	min-height: 100px;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	background-color: rgb(222, 222, 222);
-	padding-top: 10px;
-	border-radius: 5px;
-}
-.Secretarias {
-	width: 100%;
-	min-height: 100px;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	background-color: rgb(222, 222, 222);
-	padding-top: 10px;
-	border-radius: 5px;
-}
-.UUAA {
-	width: 100%;
-	min-height: 100px;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	background-color: rgb(222, 222, 222);
-	padding-top: 10px;
-	border-radius: 5px;
-}
-
-.SelectContainers {
-	width: 90%;
-	min-height: 150px;
-}
-
-.parrafo {
-	align-self: flex-start;
-	margin-bottom: 5px;
-}
-
-/*Form Metas*/
-.FormMetas {
-	width: 100%;
-	min-height: 400px;
-	background-color: rgb(227, 230, 230);
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 10px;
-	padding: 10px;
-}
-.ConteinerDescriptionMetas {
-	width: 90%;
-	min-height: 60px;
-	padding: 20px;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: flex-start;
-	border-radius: 10px;
-	border: 3px solid #c0c0c0;
-}
-.Resultados {
-	width: 90%;
-	min-height: 20%;
-	padding: 7px;
-}
-.ConteinerUbicacion {
-	width: 100%;
-	min-height: 20%;
-	padding: 7px;
-	display: flex;
-	align-items: flex-start;
-}
-.ConteinerDescripcion {
-	width: 100%;
-	display: flex;
-}
-.ResultadoEsperado {
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	min-height: 50%;
-	padding: 7px;
-}
-.Ubicacion {
-	width: 90%;
-	display: flex;
-	flex-direction: column;
-	min-height: 50%;
-	padding: 7px;
-}
-.ResultadoLogrado {
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	min-height: 50%;
-	padding: 7px;
-}
-.Observaciones {
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	min-height: 50%;
-	padding: 7px;
-}
-.Valoraciones {
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	min-height: 50%;
-	padding: 7px;
-}
-.Descripcion {
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-}
-.SubtituloMetas {
-	font-weight: bolder;
-}
-.ConteinerButton {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 10px;
-	width: 70px;
-}
-.ButtonEdit {
-	width: 50px;
-	height: 50px;
-	padding: 7px;
-}
-.ButtonDeleteDate {
-	width: 35px;
-	height: 35px;
-	padding: 5px;
-}
-.ButtonDeleteUbi {
-	width: 50px;
-	height: 50px;
-	padding: 7px;
-	margin-top: 18px;
-}
-
-.ConteinerGrande {
-	width: 100%;
-	display: flex;
-	justify-content: center;
-	align-items: flex-start;
-	gap: 5px;
-}
-.imgvolver {
-	width: 35px;
-	height: 35px;
-}
-.imgboton {
-	width: 24px;
-	height: 24px;
-}
-.ParrafoDescripcion {
-	width: 100%;
-	min-height: 20px;
-	resize: none;
-	border-radius: 5px;
-	padding: 5px;
-	font-style: italic;
-}
-.ParrafoResultados {
-	width: 100%;
-	min-height: 20px;
-	resize: none;
-	border-radius: 5px;
-	padding: 5px;
-	font-style: italic;
-}
-.ParrafoObservaciones {
-	width: 100%;
-	min-height: 20px;
-	resize: none;
-	border-radius: 5px;
-	padding: 5px;
-	font-style: italic;
-}
-.ParrafoValoraciones {
-	width: 100%;
-	min-height: 20px;
-	resize: none;
-	border-radius: 5px;
-	padding: 5px;
-	font-style: italic;
-}
-.rowForm {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 10px;
-}
-.check {
-	width: 50px;
-	height: 50px;
-	padding: 0px;
-}
-.containerCheck {
-	display: inline-block;
-	position: relative;
-}
-.textCheck {
-	position: absolute;
-	top: 0;
-	left: 0;
-	padding: 10px;
-	margin: 0;
-	z-index: -1;
-	font-size: small;
-}
-
-.containerCheck:hover .textCheck {
-	z-index: +1;
-}
-.containerCheck:hover .check {
-	opacity: 0.07;
-	-webkit-transition: opacity 500ms;
-	-moz-transition: opacity 500ms;
-	-o-transition: opacity 500ms;
-	-ms-transition: opacity 500ms;
-	transition: opacity 500ms;
-	visibility: hidden;
-}
-.ConteinerFechas {
-	display: flex;
-	flex-direction: column;
-}
-.rowFecha {
-	width: 100%;
-	height: 40px;
-	margin-bottom: 10px;
-	padding: 5px;
-	border: 1px solid rgb(59, 59, 59);
-	border-radius: 5px;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-}
-.formInstituciones {
-	width: 200px;
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-}
-.containerModal {
-	display: flex;
-	flex-direction: column;
-	width: 700px;
-	height: 200px;
-	gap: 20px;
-}
-
-th {
-	font-size: small;
-	vertical-align: middle;
-}
-
-/* Form Metas */
-
-
-.detail-icon {
-	cursor: pointer;
-}
-
-.meta-label {
-	position: absolute;
-	background-color: rgba(0, 0, 0, 0.7);
-	color: #ffffff;
-	padding: 5px;
-	border-radius: 4px;
-	font-size: 12px;
-	top: 50%;
-	left: 50%;
-	display: block;
+input.form-check-input:checked {
+	background-color: #198754;
+	border-color: #198754;
 }
 
 /* Form Periodo */
-
-.contenedor-forms {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-}
-
 .texto-fechas-seleccionadas {
 	background-color: #4caf50;
 	color: #ffffff;
@@ -790,10 +236,12 @@ th {
 	margin: 10px 0;
 }
 
+/* NOTE: Form Metas */
 .placeholder-option {
 	color: green;
 }
 
+/* NOTE: Form custom scrollbar */
 .custom-scrollbar {
 	scrollbar-width: thin; /* Ancho del scrollbar */
 	scrollbar-color: #888 rgba(255, 255, 255, 0); /* Color del scrollbar thumb y track */
@@ -841,13 +289,8 @@ th {
 		opacity: 1;
 	}
 }
-/* Pagina de ayuda */
-.help-container {
-	border: 1px solid #c0c0c0;
-	border-radius: 10px;
-	padding: 10px;
-	margin-top: 20px;
-}
+
+/* NOTE: Pagina de ayuda */
 
 .help-page h5 {
 	margin-bottom: 10px;
@@ -894,5 +337,4 @@ th {
 }
 .accordion:hover {
 	--bs-accordion-bg: #b6babe;
-	
 }

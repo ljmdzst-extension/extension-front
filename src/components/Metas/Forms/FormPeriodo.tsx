@@ -2,26 +2,19 @@ import { useState, useEffect } from 'react';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import es from 'date-fns/locale/es';
-import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/redux/store';
 import { Col, Row } from 'react-bootstrap';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import { setHayCambios } from '@/redux/actions/activityAction';
-import { ErrorOutline } from '@mui/icons-material';
-import { FechasPuntuale } from '@/types/ActivityProps';
-import { useGuardarActividad } from '@/hooks/useGuardarActividad';
+import { Actividad, FechasPuntuale } from '@/types/ActivityProps';
 
 registerLocale('es', es);
 
-export default function FormPeriodo() {
-	const dispatch = useDispatch();
-	const { activity, hayCambios } = useSelector((state: RootState) => state.actividad);
-	const { guardarActividad } = useGuardarActividad();
+interface Props {
+	activity: Actividad;
+	saveData: (data: Partial<Actividad>) => void;
+}
 
-	// const [isSaving, setIsSaving] = useState<boolean>(false);
-
+export default function FormPeriodo({ activity, saveData }: Props) {
 	const [fechaDesde, setFechaDesde] = useState<string>(activity.fechaDesde);
 	const [fechaHasta, setFechaHasta] = useState<string>(activity.fechaHasta);
 	const [erroresRango, setErroresRango] = useState<string>('');
@@ -39,6 +32,14 @@ export default function FormPeriodo() {
 	const [indexDates, setIndexDates] = useState<FechasPuntuale[]>(
 		listaFechasPuntuales.filter((fecha) => fecha.fecha !== null),
 	);
+
+	useEffect(() => {
+		saveData({
+			fechaDesde: fechaDesde,
+			fechaHasta: fechaHasta,
+			listaFechasPuntuales: listaFechasPuntuales,
+		});
+	}, [fechaDesde, fechaHasta, listaFechasPuntuales]);
 
 	useEffect(() => {
 		setIndexDates(listaFechasPuntuales.filter((fecha) => fecha.fecha !== null));
@@ -67,7 +68,6 @@ export default function FormPeriodo() {
 				if (a.fecha && b.fecha) {
 					const dateA = new Date(a.fecha);
 					const dateB = new Date(b.fecha);
-					// console.log(dateA.getTime() - dateB.getTime());
 					return dateA.getTime() - dateB.getTime();
 				}
 				return 0;
@@ -76,18 +76,6 @@ export default function FormPeriodo() {
 			setListaFechasPuntuales(listaOrdenada);
 		}
 	};
-	const checkForChanges = () => {
-		const cambio =
-			activity.fechaDesde !== fechaDesde ||
-			activity.fechaHasta !== fechaHasta ||
-			JSON.stringify(activity.listaFechasPuntuales) !== JSON.stringify(listaFechasPuntuales);
-		console.log(activity.listaFechasPuntuales, ' - ', listaFechasPuntuales);
-		dispatch(setHayCambios({ valor: cambio }));
-	};
-
-	useEffect(() => {
-		checkForChanges();
-	}, [fechaDesde, fechaHasta, listaFechasPuntuales]);
 
 	const selectStartDate = (d: Date) => {
 		setRangeStart(d);
@@ -131,15 +119,15 @@ export default function FormPeriodo() {
 	}, [rangeStart, rangeEnd]);
 
 	return (
-		<div className=' d-flex flex-column mx-3 h-100'>
-			<Row className='mt-3 h-100'>
+		<>
+			<Row>
 				<Col style={{ borderRight: '2px solid #acafb3' }} xs={7}>
 					<h4 className=' text-center mt-2'>Seleccionar Periodo</h4>
 					<p>
 						Período que abarca desde el inicio de la planificación hasta la fecha de realización de
 						la actividad.
 					</p>
-					<div className='ConteinerRange gap-2'>
+					<div className=' d-flex justify-content-around p-4 gap-2'>
 						<div>
 							<p>Inicio:</p>
 							<DatePicker
@@ -204,10 +192,10 @@ export default function FormPeriodo() {
 							disabled={!rangeStart || !rangeEnd}
 						/>
 					</div>
-					<div className='ConteinerDaysSelected m-2 ms-0'>
+					<div className=' w-75 m-2 ms-0'>
 						<span>Fechas Seleccionadas:</span>
 						<div
-							className='ConteinerFechas custom-scrollbar'
+							className=' d-flex flex-column custom-scrollbar'
 							style={{ maxHeight: '160px', overflowY: 'auto' }}
 						>
 							{indexDates.map((date, index) => (
@@ -224,24 +212,6 @@ export default function FormPeriodo() {
 					</div>
 				</Col>
 			</Row>
-
-			<div className=' d-flex justify-content-center '>
-				<Button
-					variant='success'
-					className='mt-auto mb-3 align-self-center '
-					onClick={() => {
-						guardarActividad({
-							...activity,
-							fechaDesde: fechaDesde,
-							fechaHasta: fechaHasta,
-							listaFechasPuntuales: listaFechasPuntuales,
-						});
-					}}
-				>
-					Guardar Actividad
-					{hayCambios && <ErrorOutline style={{ marginLeft: '10px', color: 'yellow' }} />}
-				</Button>
-			</div>
-		</div>
+		</>
 	);
 }

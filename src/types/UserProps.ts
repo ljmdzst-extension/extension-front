@@ -4,6 +4,13 @@ export interface UserFetch {
 	error: null;
 }
 
+export interface UserPersonaFetch{
+	ok: boolean;
+	data: Persona;
+	message: string;
+	error: null;
+}
+
 export interface UserData {
 	persona: Persona;
 	usuario: Usuario;

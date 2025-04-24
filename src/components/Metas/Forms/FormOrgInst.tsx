@@ -2,20 +2,17 @@ import React, { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { Form } from 'react-bootstrap';
 import Table from 'react-bootstrap/Table';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/redux/store';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Swal from 'sweetalert2';
-import { setHayCambios } from '@/redux/actions/activityAction';
-import { ErrorOutline } from '@mui/icons-material';
-import { Institucione } from '@/types/ActivityProps';
+import { Actividad, Institucione } from '@/types/ActivityProps';
 import { getInstituciones } from '@/services/api/private/metas';
-import { useGuardarActividad } from '@/hooks/useGuardarActividad';
 
-export default function FormOrgInst() {
-	const dispatch = useDispatch();
-	const { activity, hayCambios } = useSelector((state: RootState) => state.actividad);
-	const { guardarActividad } = useGuardarActividad();
+interface Props {
+	activity: Actividad;
+	saveData: (data: Partial<Actividad>) => void;
+}
+
+export default function FormOrgInst( { activity, saveData }: Props ) {
 	const [arrayInstitucion, setArrayInstitucion] = useState<Institucione[]>(
 		activity.listaInstituciones || [],
 	);
@@ -23,6 +20,10 @@ export default function FormOrgInst() {
 
 	const [name, setName] = useState('');
 	const [ubicacion, setUbicacion] = useState('');
+
+	useEffect(() => {
+		saveData({ listaInstituciones: arrayInstitucion });
+	}, [arrayInstitucion]);
 
 	const submitForm = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -72,7 +73,7 @@ export default function FormOrgInst() {
 		return () => clearTimeout(debounce);
 	}, [name]);
 
-	const handleInstChange = (e: React.ChangeEvent<any>) => {
+	const handleInstChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setName(e.currentTarget.value);
 
 		const selectedInstitution = arraySearchInstitucion.find(
@@ -127,18 +128,10 @@ export default function FormOrgInst() {
 		});
 	};
 
-	useEffect(() => {
-		const checkForChanges = () => {
-			const cambio =
-				JSON.stringify(activity.listaInstituciones) !== JSON.stringify(arrayInstitucion);
-			dispatch(setHayCambios({ valor: cambio }));
-		};
-		checkForChanges();
-	}, [activity.listaInstituciones, arrayInstitucion, dispatch]);
+
 
 	return (
-		<div className='d-flex flex-column h-100'>
-			<div className='m-2'>
+			<>
 				<p>
 					Ubicación se refiere al punto del mapa en donde se encuentre el lugar de la actividad.
 					Utilice la herramienta de Google Maps para insertar el enlace de dicha ubicación.
@@ -190,8 +183,8 @@ export default function FormOrgInst() {
 						Agregar
 					</Button>
 				</Form>
-				<div className='ListaInstituciones'>
-					<div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+				<>
+					<div style={{ maxHeight: '250px', overflowY: 'auto' }}>
 						<Table striped bordered hover>
 							<thead>
 								<tr>
@@ -232,21 +225,9 @@ export default function FormOrgInst() {
 							</tbody>
 						</Table>
 					</div>
-				</div>
-			</div>
-			<Button
-				variant='success'
-				className='mt-auto mb-3 align-self-center'
-				onClick={() => {
-					guardarActividad({
-						...activity,
-						listaInstituciones: arrayInstitucion,
-					});
-				}}
-			>
-				Guardar Actividad
-				{hayCambios && <ErrorOutline style={{ marginLeft: '10px', color: 'yellow' }} />}
-			</Button>
-		</div>
+				</>
+			</>
+
+
 	);
 }

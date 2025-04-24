@@ -6,6 +6,7 @@ const basePath = '/usr';
 
 export const loginUser = async (email: string, pass: string) => {
 	try {
+		console.log(import.meta.env.VITE_API_BASE_URL);
 		const response = await publicAxiosInstance.post<LoginResponse>(`${basePath}/login`, {
 			email,
 			pass,

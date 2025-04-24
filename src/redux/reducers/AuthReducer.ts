@@ -2,8 +2,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { authAsync, loginAsync, registerAsync } from '../actions/authAction';
 import { Area } from '@/types/AuthProps';
 
+interface UserData {
+	userId: string;
+	userName: string;
+}
+
 interface AuthState {
-	user: string;
+	userData: UserData;
 	token: string;
 	loading: boolean;
 	permisos: string[];
@@ -24,7 +29,7 @@ const getUserDataFromLocalStorage = () => {
 	const currentArea = localStorage.getItem('currentArea');
 
 	return {
-		user: user ?? '',
+		user: user ? JSON.parse(user) : {},
 		token: token ?? '',
 		permisos: permisos ? JSON.parse(permisos) : [],
 		categorias: categorias ? JSON.parse(categorias) : [],
@@ -60,7 +65,7 @@ function canEdit(permisos: string[], areas: Area[], currentArea: string | null):
 const { user, token, permisos, categorias, areas, currentArea } = getUserDataFromLocalStorage();
 
 const initialState: AuthState = {
-	user,
+	userData: user,
 	token,
 	permisos,
 	loading: false,
@@ -77,7 +82,7 @@ const authSlice = createSlice({
 	initialState,
 	reducers: {
 		logout(state) {
-			state.user = '';
+			state.userData = { userId: '', userName: '' };
 			state.token = '';
 			state.loading = false;
 			state.error = null;
@@ -88,7 +93,7 @@ const authSlice = createSlice({
 			console.log('usuario deslogueado');
 		},
 		loginFailed(state, action: PayloadAction<string>) {
-			state.user = '';
+			state.userData = { userId: '', userName: '' };
 			state.token = '';
 			state.loading = false;
 			state.error = action.payload;
@@ -110,7 +115,10 @@ const authSlice = createSlice({
 		builder.addCase(loginAsync.fulfilled, (state, action) => {
 			state.loading = false;
 			state.isLogged = true;
-			state.user = action.payload.nom + ' ' + action.payload.ape;
+			state.userData = {
+				userId: action.payload.idUsuario,
+				userName: action.payload.nom + ' ' + action.payload.ape,
+			};
 			state.token = action.payload.token;
 			state.permisos = action.payload.permisos;
 			state.categorias = action.payload.categorias;

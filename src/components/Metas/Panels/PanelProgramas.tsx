@@ -1,14 +1,16 @@
+// PanelProgramas.tsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Col from 'react-bootstrap/Col';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Row from 'react-bootstrap/Row';
 import Tab from 'react-bootstrap/Tab';
-import { Button, Card, Form, Image } from 'react-bootstrap';
+import { Button, Card, Image } from 'react-bootstrap';
 import LoadingSpinner from '@/components/Common/Spinner/LoadingSpinner';
 import useAlert from '@/hooks/useAlert';
 import { AreaProps, ProgramaProps } from '@/types/AppProps';
 import { getProgramas } from '@/services/api/private/metas';
+import YearSelector from '@/components/Common/YearSelector';
 
 const currentYear = new Date().getFullYear();
 
@@ -39,7 +41,7 @@ export default function PanelProgramas() {
 			}
 		};
 		obtenerProgramas();
-	}, [year]); // Ejecutar cuando token o year cambian
+	}, [year]);
 
 	const openArea = (area: AreaProps) => {
 		const areaSinLista = {
@@ -52,35 +54,22 @@ export default function PanelProgramas() {
 		navigation(`/gestion/metas/${areaSinLista.idPrograma}/${areaSinLista.idArea}`);
 	};
 
-	const yearsArray = Array.from({ length: currentYear - 2022 }, (_, index) => currentYear - index);
-
-	const handleYearChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-		const selectedYear = parseInt(event.target.value);
+	const handleYearChange = (newYear: number) => {
 		setIndexActivity([]);
-		setYear(selectedYear);
+		setYear(newYear);
 	};
 
 	return (
 		<div className='ContainerCardMenu d-flex flex-column justify-content-start gap-1 '>
-			{/* <h2>Titulo del Sistema</h2> */}
-
 			<Image src='/assets/img/UNL_Logo.png' alt='logo-programas' style={{ width: '15rem' }} />
-			{/* Antes validaba con is open */}
-			<Form.Group className=' align-self-start d-flex align-items-center mb-2'>
-				<label style={{ width: '140px' }}>Seleccione el año:</label>
-				<Form.Select value={year} onChange={handleYearChange} size='sm' style={{ width: '100px' }}>
-					{yearsArray.map((yearOption) => (
-						<option key={yearOption} value={yearOption}>
-							{yearOption}
-						</option>
-					))}
-				</Form.Select>
-			</Form.Group>
-			<div className=' d-flex justify-content-start align-items-center gap-2 w-100  '>
+
+			<div className='d-flex justify-content-start align-items-center gap-2 w-100'>
 				<Card style={{ width: '18rem' }}>
 					<div className='imgCard'>
 						<h1>
-							<span className='fontYear'>{year}</span>
+							<span className=' text-white'>
+								<YearSelector year={year} onYearChange={handleYearChange} />
+							</span>
 						</h1>
 					</div>
 					<Card.Body
@@ -93,12 +82,12 @@ export default function PanelProgramas() {
 						<Card.Text style={{ textAlign: 'center' }}>
 							Para obtener un análisis de datos generales, presione en "Ver resumen"
 						</Card.Text>
-						<Button variant='success' onClick={() => navigation('/gestion/metas/graficas')}>
+						<Button className='btn-primary' onClick={() => navigation('/gestion/metas/graficas')}>
 							Ver Resumen
 						</Button>
 					</Card.Body>
 				</Card>
-				<div className=' d-flex align-items-center w-100 h-100 '>
+				<div className='d-flex align-items-center w-100 h-100'>
 					{isLoading ? (
 						<LoadingSpinner />
 					) : (
@@ -161,10 +150,10 @@ export default function PanelProgramas() {
 												</ListGroup>
 											</Col>
 										</Row>
-									</Tab.Container>{' '}
+									</Tab.Container>
 								</>
 							) : (
-								<div className=' text-center w-100'>
+								<div className='text-center w-100'>
 									<h2>El usuario no tiene programas cargados este año.</h2>
 								</div>
 							)}

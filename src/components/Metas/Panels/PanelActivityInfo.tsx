@@ -39,12 +39,10 @@ export const PanelActivityInfo: React.FC<Props> = ({
 	});
 	const { errorAlert, successAlert } = useAlert();
 
-	// Handle navigation
 	const handleViewAllClick = () => {
 		navigate(location.pathname + '/resumen');
 	};
 
-	// Handle file change
 	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (!file) {
@@ -89,7 +87,6 @@ export const PanelActivityInfo: React.FC<Props> = ({
 		}
 	};
 
-	// Handle file download
 	const handleDownloadClick = async () => {
 		const result = await getArchivoPresupuesto(Number(anio), idArea, idPrograma);
 		if (result.ok) {
@@ -99,7 +96,6 @@ export const PanelActivityInfo: React.FC<Props> = ({
 		}
 	};
 
-	// Chart configurations
 	const chartConfigs = [
 		{
 			title: 'Distribución de actividades según Eje Estratégico - PIE',
@@ -120,12 +116,8 @@ export const PanelActivityInfo: React.FC<Props> = ({
 	];
 
 	return (
-		<Container
-			className='py-4 h-100 overflow-y-auto custom-scrollbar fluid'
-			style={{ maxHeight: 'calc(100vh - 130px)', height: '100%' }}
-		>
+		<Container className='py-3 h-100 fluid'>
 			<Row>
-				{/* InfoCard for "Actividades" */}
 				<InfoCard
 					title='Actividades'
 					info={cantidadActividades}
@@ -140,8 +132,6 @@ export const PanelActivityInfo: React.FC<Props> = ({
 					buttonDisabled={cantidadActividades === 0}
 					colProps={{ md: 4 }}
 				/>
-
-				{/* InfoCard for "Presupuesto" */}
 				<InfoCard
 					title='Presupuesto'
 					info='Plantilla de presupuesto disponible'
@@ -169,11 +159,10 @@ export const PanelActivityInfo: React.FC<Props> = ({
 					}
 				/>
 			</Row>
-
 			<Row>
 				{chartConfigs.map((item, index) => (
 					<InfoCard
-						key={index} // Add unique key for each InfoCard
+						key={index}
 						variant='secondary'
 						title={item.title}
 						titleFontSize='1rem'
@@ -185,9 +174,8 @@ export const PanelActivityInfo: React.FC<Props> = ({
 							) : (
 								<div
 									className='d-flex flex-column border rounded w-100 h-100 text-center '
-									style={{ backgroundColor: '#f5f5f5', minHeight: '200px', maxWidth: '100%' }}
+									style={{ backgroundColor: '#f5f5f5', minHeight: '180px', maxWidth: '100%' }}
 								>
-									{' '}
 									<Grafico
 										dataKey={item.dataKey}
 										data={item.data}

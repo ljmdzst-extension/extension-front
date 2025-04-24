@@ -14,6 +14,7 @@ import {
 	ResponsiveContainer,
 	Cell,
 } from 'recharts';
+import LoadingSpinner from '../Spinner/LoadingSpinner';
 
 type ChartType = 'line' | 'bar' | 'pie';
 
@@ -68,13 +69,7 @@ const renderCustomizedLabel = ({
 	const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
 	return (
-		<text
-			x={x}
-			y={y}
-			fill='white'
-			textAnchor={x > cx ? 'start' : 'end'}
-			dominantBaseline='central'
-		>
+		<text x={x} y={y} fill='white' textAnchor={x > cx ? 'start' : 'end'} dominantBaseline='central'>
 			{`${(percent * 100).toFixed(0)}%`}
 		</text>
 	);
@@ -113,21 +108,18 @@ const Grafico: React.FC<GraficoProps> = ({
 
 	const getColor = useMemo(() => {
 		return (name: string, index: number) => {
-			if (customColors) {
-				const customColor = customColors.find((color) => color.item === name);
-				return customColor?.color || DEFAULT_COLORS[index % DEFAULT_COLORS.length];
-			}
-			return DEFAULT_COLORS[index % DEFAULT_COLORS.length];
+			const customColor = customColors?.find((color) => color.item === name)?.color;
+			return customColor || DEFAULT_COLORS[index % DEFAULT_COLORS.length];
 		};
 	}, [customColors]);
 
 	if (data.length === 0) {
-		return <div>No data available</div>;
+		return <LoadingSpinner />;
 	}
 
 	//NOTE:  Componente LineChart
 	const renderLineChart = () => (
-		<LineChart data={data}>
+		<LineChart data={data} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
 			<CartesianGrid strokeDasharray='3 3' />
 			<XAxis dataKey={dataKey} tick={shouldHideTicks ? false : undefined} />
 			<YAxis />
@@ -141,7 +133,7 @@ const Grafico: React.FC<GraficoProps> = ({
 
 	//NOTE:  Componente BarChart
 	const renderBarChart = () => (
-		<BarChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+		<BarChart data={data} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
 			<CartesianGrid strokeDasharray='3 3' />
 			<XAxis dataKey={dataKey} tick={shouldHideTicks ? false : undefined} />
 			<YAxis />
@@ -159,7 +151,7 @@ const Grafico: React.FC<GraficoProps> = ({
 
 	//NOTE:  Componente PieChart
 	const renderPieChart = () => (
-		<PieChart>
+		<PieChart margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
 			<Pie
 				dataKey='cantActividades'
 				data={data}
@@ -188,15 +180,12 @@ const Grafico: React.FC<GraficoProps> = ({
 				return renderBarChart();
 			case 'pie':
 				return renderPieChart();
-
+			default:
+				return <div>Invalid chart type</div>;
 		}
 	};
 
-	return (
-		<ResponsiveContainer width='100%' height='100%' className='border rounded bg-white'>
-			{renderChart()}
-		</ResponsiveContainer>
-	);
+	return <ResponsiveContainer>{renderChart()}</ResponsiveContainer>;
 };
 
 export default Grafico;

@@ -29,7 +29,10 @@ export default function NavBar() {
 	};
 
 	return (
-		<Navbar className='NavBar' id='header'>
+		<Navbar
+			className=' d-flex justify-content-between align-items-center bg-color-primary'
+			id='header'
+		>
 			<Container>
 				<Navbar.Brand>
 					<a href='https://www.unl.edu.ar/'>
@@ -40,7 +43,9 @@ export default function NavBar() {
 							style={{ width: '2.5rem', height: '2.5rem' }}
 						/>
 					</a>
-					<a href='/'>Secretaría de Extensión y Cultura</a>
+					<a href='/' className=' text-decoration-none text-white ' style={{ fontSize: ' 14px' }}>
+						Secretaría de Extensión y Cultura
+					</a>
 				</Navbar.Brand>
 				<Nav>
 					{isLogged ? (
@@ -55,13 +60,13 @@ export default function NavBar() {
 							) : null}
 							<Nav.Link
 								onClick={handleLogout}
-								className=' d-flex flex-column justify-content-center'
+								className=' d-flex flex-column justify-content-center text-white'
 							>
 								<LogoutIcon />
 							</Nav.Link>
 						</>
 					) : (
-						<Nav.Link href='/login'>Iniciar Sesión</Nav.Link>
+						<Nav.Link href='/login' className=' text-white'>Iniciar Sesión</Nav.Link>
 					)}
 				</Nav>
 			</Container>

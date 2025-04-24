@@ -70,11 +70,11 @@ const FormLogin = () => {
 		}
 	};
 
-	const saveUserData = ({ token, nom, ape, permisos, categorias, areas }: UserData) => {
+	const saveUserData = ({ idUsuario, token, nom, ape, permisos, categorias, areas }: UserData) => {
 		const expiryDate = new Date().getTime() + TOKEN_LIFETIME_MS;
 		localStorage.setItem('token', token);
 		localStorage.setItem('tokenExpiry', expiryDate.toString());
-		localStorage.setItem('user', `${nom} ${ape}`);
+		localStorage.setItem('user', JSON.stringify({ userId: idUsuario, userName: `${nom} ${ape}` }));
 		localStorage.setItem('permisos', JSON.stringify(permisos));
 		localStorage.setItem('categorias', JSON.stringify(categorias));
 		localStorage.setItem('areas', JSON.stringify(areas));
@@ -103,19 +103,19 @@ const FormLogin = () => {
 				rules={validationRules.password}
 			/>
 
-			<div className='d-flex justify-content-center mt-2'>
-				<Button variant='primary' type='submit' className='btn btn-primary' disabled={loading}>
+			<div className='d-flex justify-content-center mt-3'>
+				<Button type='submit' className='btn btn-primary-custom' disabled={loading}>
 					{loading ? 'Ingresando...' : 'Ingresar'}
 				</Button>
 			</div>
 
-			<div>
-				<p className='mt-4'>
+			<div className=' mt-3'>
+				{/* <p>
 					¿No tienes cuenta?{' '}
 					<Link to='/register' style={{ color: '#08473f' }} className='text-decoration-underline'>
 						Registrate
 					</Link>
-				</p>
+				</p> */}
 
 				<p>
 					Si olvidó su contraseña, comuníquese con Mesa de Ayuda{' '}

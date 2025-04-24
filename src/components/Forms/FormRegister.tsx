@@ -204,7 +204,7 @@ const FormRegister = () => {
 			</Row>
 
 			<div className='d-flex justify-content-center'>
-				<Button variant='primary' type='submit' className='btn-primary' disabled={loading}>
+				<Button variant='primary' type='submit' className='btn-primary-custom' disabled={loading}>
 					{loading ? 'Registrando...' : 'Registrarse'}
 				</Button>
 			</div>

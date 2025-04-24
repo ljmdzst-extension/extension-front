@@ -1,17 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { RootState } from '@/redux/store';
-import { useDispatch, useSelector } from 'react-redux';
-
+import { useSelector } from 'react-redux';
 import AddBoxRoundedIcon from '@mui/icons-material/AddBoxRounded';
 import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Badge, Button, Form, Modal, Table } from 'react-bootstrap';
 import Swal from 'sweetalert2';
-import { setHayCambios } from '@/redux/actions/activityAction';
-import { ErrorOutline } from '@mui/icons-material';
-import { Meta } from '@/types/ActivityProps';
-import { useGuardarActividad } from '@/hooks/useGuardarActividad';
+import { Actividad, Meta } from '@/types/ActivityProps';
 
 interface Valoracion {
 	idValoracion: number;
@@ -26,23 +22,26 @@ const defaultNuevaMeta: Meta = {
 	valoracion: -1,
 };
 
-const FormMetas = () => {
-	const dispatch = useDispatch();
-	const { activity, hayCambios } = useSelector((state: RootState) => state.actividad);
+interface Props {
+	activity: Actividad;
+	saveData: (data: Partial<Actividad>) => void;
+}
+
+const FormMetas = ({ activity, saveData }: Props) => {
 	const { bases, error } = useSelector((state: RootState) => state.metas);
-	const { guardarActividad } = useGuardarActividad();
 	const [listadoMetas, setListadoMetas] = useState<Meta[]>(activity.listaMetas ?? []);
 	const [nuevaMeta, setNuevaMeta] = useState<Meta>(defaultNuevaMeta);
 	const [valoraciones, setValoraciones] = useState<Valoracion[]>([]);
 	const [showModal, setShowModal] = useState(false);
 	const indexCurrentMeta = useRef(-1);
 
-	const isInitialMount = useRef(true);
+	useEffect(() => {
+		saveData({ listaMetas: listadoMetas });
+	}, [listadoMetas]);
 
 	useEffect(() => {
 		if (!error && bases) {
 			setValoraciones(bases.listaValoraciones);
-		} else {
 		}
 	}, [bases, error]);
 
@@ -69,7 +68,6 @@ const FormMetas = () => {
 			newListadoMetas[indexCurrentMeta.current] = nuevaMeta;
 			setListadoMetas(newListadoMetas);
 		}
-		checkForChanges();
 		closeModal();
 	};
 
@@ -77,14 +75,12 @@ const FormMetas = () => {
 		indexCurrentMeta.current = index;
 		setNuevaMeta(listadoMetas[index]);
 		openModal();
-		checkForChanges();
 	};
 
 	const eliminarMeta = (index: number) => {
 		const newListadoMetas = [...listadoMetas];
 		newListadoMetas.splice(index, 1);
 		setListadoMetas(newListadoMetas);
-		checkForChanges();
 	};
 
 	const alertVistaDetalle = (thisMeta: Meta) => {
@@ -110,34 +106,13 @@ const FormMetas = () => {
 		return valoracion?.nom;
 	};
 
-	// NOTE: CHECK UPDATE
-	const checkForChanges = () => {
-		const cambio = JSON.stringify(activity.listaMetas) !== JSON.stringify(listadoMetas);
-
-		if (hayCambios === cambio) return;
-
-		if (cambio) {
-			dispatch(setHayCambios({ valor: true }));
-		} else {
-			dispatch(setHayCambios({ valor: false }));
-		}
-	};
-	useEffect(() => {
-		if (isInitialMount.current) {
-			isInitialMount.current = false;
-			return;
-		}
-
-		checkForChanges();
-	}, [listadoMetas]);
-
 	return (
-		<div className=' d-flex flex-column mx-4 h-100'>
+		<>
 			<Button
 				onClick={() => {
 					botonAgregarMeta();
 				}}
-				className='my-4 ms-auto me'
+				className='d-flex align-items-center my-2 ms-auto '
 			>
 				Agregar
 				<AddBoxRoundedIcon className=' ms-2' />
@@ -190,19 +165,7 @@ const FormMetas = () => {
 					</tbody>
 				</Table>
 			</div>
-			<Button
-				variant='success'
-				className='mt-auto mb-3 align-self-center '
-				onClick={() => {
-					guardarActividad({
-						...activity,
-						listaMetas: listadoMetas,
-					});
-				}}
-			>
-				Guardar Actividad{' '}
-				{hayCambios && <ErrorOutline style={{ marginLeft: '10px', color: 'yellow' }} />}
-			</Button>
+
 			<Modal show={showModal} onHide={closeModal} size='xl' centered>
 				<Modal.Header closeButton></Modal.Header>
 				<Modal.Body className=' d-flex flex-column gap-4 '>
@@ -210,7 +173,6 @@ const FormMetas = () => {
 						<Form.Control
 							as='textarea'
 							name='descripcion'
-							className='ParrafoDescripcion'
 							placeholder={'Meta/resultado esperado'}
 							value={nuevaMeta.descripcion ?? ''}
 							onChange={(e) => {
@@ -230,7 +192,6 @@ const FormMetas = () => {
 							as='textarea'
 							rows={4}
 							name='editResultado'
-							className='ParrafoResultado'
 							placeholder={'Resultado alcanzado'}
 							value={nuevaMeta.resultado ?? ''}
 							onChange={(e) => {
@@ -250,7 +211,6 @@ const FormMetas = () => {
 							as='textarea'
 							rows={4}
 							name='editObservaciones'
-							className='ParrafoObservaciones'
 							placeholder={
 								'Observaciones (puede incorporarse cualquier detalle o información adicional que complemente los resultados alcanzados. También pueden ingresarse links a documentos o recursos anexo).'
 							}
@@ -269,7 +229,7 @@ const FormMetas = () => {
 					</Form.Group>
 					<Form.Select
 						name='valoracion'
-						className={`ParrafoObservaciones ${
+						className={`${
 							nuevaMeta.valoracion === -1 ? 'placeholder-option' : ''
 						}}`}
 						value={nuevaMeta.valoracion ?? -1}
@@ -291,7 +251,7 @@ const FormMetas = () => {
 					</Form.Select>
 				</Modal.Body>
 				<Modal.Footer>
-					<button className='btn btn-primary' onClick={guardarBotonModal}>
+					<button className='btn btn-primary-custom' onClick={guardarBotonModal}>
 						Guardar
 					</button>
 					<button className='btn btn-danger' onClick={closeModal}>
@@ -299,7 +259,7 @@ const FormMetas = () => {
 					</button>
 				</Modal.Footer>
 			</Modal>
-		</div>
+		</>
 	);
 };
 

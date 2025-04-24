@@ -1,157 +1,117 @@
-import { useEffect, useRef, useState } from 'react';
-import { Form } from 'react-bootstrap';
-import Button from 'react-bootstrap/Button';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState } from 'react';
+import { Form, Row, Col } from 'react-bootstrap';
 import { RootState } from '@/redux/store';
 import { ListaObjetivo } from '@/types/BasesProps';
-import { setHayCambios } from '@/redux/actions/activityAction';
-import { ErrorOutline } from '@mui/icons-material';
-import { useGuardarActividad } from '@/hooks/useGuardarActividad';
+import { Actividad } from '@/types/ActivityProps';
+import { useSelector } from 'react-redux';
+import CommonIconWithTooltip from '@/components/Common/Icon/CommonIconWithTooltip';
+import { Info } from '@mui/icons-material';
 
-export default function FormPIE() {
-	const dispatch = useDispatch();
-	const { activity, hayCambios } = useSelector((state: RootState) => state.actividad);
-	const { bases } = useSelector((state: RootState) => state.metas);
-	const { guardarActividad } = useGuardarActividad();
-	const [objetivos] = useState<ListaObjetivo[]>(bases?.listaObjetivos ?? []);
+interface Props {
+	activity: Actividad;
+	saveData: (data: Partial<Actividad>) => void;
+}
+
+export default function FormPIE({ activity, saveData }: Props) {
+	const objetivos = useSelector((state: RootState) => state.metas.bases?.listaObjetivos ?? []);
 	const [objetivosSeleccionados, setObjetivosSeleccionados] = useState<number[]>(
 		activity?.listaObjetivos ?? [],
 	);
-	const isInitialMount = useRef(true);
 
 	const handleSeleccionarObjetivo = (idObjetivo: number) => {
-		const objetivoIndex = objetivosSeleccionados.indexOf(idObjetivo);
-		if (objetivoIndex === -1) {
-			setObjetivosSeleccionados([...objetivosSeleccionados, idObjetivo]);
-		} else {
-			const newSeleccionados = objetivosSeleccionados.filter((id) => id !== idObjetivo);
-			setObjetivosSeleccionados(newSeleccionados);
-		}
+		const newSeleccionados = objetivosSeleccionados.includes(idObjetivo)
+			? objetivosSeleccionados.filter((id) => id !== idObjetivo)
+			: [...objetivosSeleccionados, idObjetivo].sort((a, b) => a - b);
+
+		setObjetivosSeleccionados(newSeleccionados);
+		saveData({ listaObjetivos: newSeleccionados });
 	};
 
-	useEffect(() => {
-		if (isInitialMount.current) {
-			isInitialMount.current = false;
-			return;
-		}
-		checkForChanges(); // Comprueba si hay cambios cuando se monta el componente o cuando se actualiza el estado
-	}, [objetivosSeleccionados]);
+	const ejesTransversales = objetivos.slice(19, 22);
+	const planInstitucional = [
+		objetivos.slice(4, 9),
+		objetivos.slice(9, 14),
+		objetivos.slice(14, 19),
+	];
 
-	const checkForChanges = () => {
-		// Comprueba si hay cambios
-		const cambios =
-			JSON.stringify(activity.listaObjetivos) !== JSON.stringify(objetivosSeleccionados);
+	const renderCheckboxes = (items: ListaObjetivo[]) => {
+		const [mainTitle] = items[0].nom.split(' - ');
 
-		if (hayCambios === cambios) return;
+		return (
+			<>
+				<p className=' fw-semibold mb-0'>{mainTitle}</p>
+				{items.map(({ idObjetivo, nom, detalle }) => {
+					const [, subTitle] = nom.split(' - ');
 
-		if (cambios) {
-			dispatch(setHayCambios({ valor: true }));
-		} else {
-			dispatch(setHayCambios({ valor: false }));
-		}
+					return (
+						<div className='d-flex gap-1' key={idObjetivo}>
+							<Form.Check
+								id={idObjetivo.toString()}
+								label={subTitle}
+								onChange={() => handleSeleccionarObjetivo(idObjetivo)}
+								checked={objetivosSeleccionados.includes(idObjetivo)}
+							/>
+							{detalle && (
+								<CommonIconWithTooltip
+									Icon={() => <Info style={{ color: '#28a745', fontSize: '1.2rem' }} />}
+									tooltipText={detalle}
+								/>
+							)}
+						</div>
+					);
+				})}
+			</>
+		);
 	};
-
-	const objetivosDesde21a24 = objetivos?.slice(19, 22);
-	const objetivosDesde5a9 = objetivos?.slice(4, 9);
-	const objetivosDesde10a15 = objetivos?.slice(9, 14);
-	const objetivosDesde16a20 = objetivos?.slice(14, 19);
 
 	return (
-		<div className=' d-flex flex-column h-100'>
-			<div className=' w-100 d-flex flex-column gap-1 '>
-				<p className=' px-2 text-end w-100 fst-italic'>
-					Referencia:{' '}
-					<a
-						href='https://www.unl.edu.ar/pie/wp-content/uploads/sites/55/2021/02/Plan-Institucional-Estrat%C3%A9gico.pdf'
-						target='_blank'
-						rel='noopener noreferrer'
-						className=' text-decoration-underline'
-					>
-						Plan Institucional Estratégico
-					</a>
-				</p>
-				<div className='ConteinerEje'>
-					<h4 className='TitlePie'>Ejes Transversales</h4>
-					<Form className='FormEje'>
-						{/* <p className='SubtitlePie'>
-							<span>Seleccione los ejes:</span>
-						</p> */}
-						<div className='Eje mt-2'>
-							{objetivosDesde21a24.map((objetivo) => (
-								<Form.Check
-									id={objetivo.idObjetivo.toString()}
-									label={objetivo.nom}
-									key={objetivo.idObjetivo}
-									onChange={() => handleSeleccionarObjetivo(objetivo.idObjetivo)}
-									checked={objetivosSeleccionados.includes(objetivo.idObjetivo)}
-								/>
-							))}
-						</div>
-					</Form>
-				</div>
-				<div className='ConteinerPlan'>
-					<h4 className='TitlePie'>Plan Institucional</h4>
-					<Form className='FormPlan'>
-						{/* <p className='SubtitlePie'>
-							<span>Seleccione los planes:</span>
-						</p> */}
-						<div className='ConteinerChecksPlan mt-2'>
-							<div className='Lie'>
-								{objetivosDesde5a9.map((objetivo) => (
-									<Form.Check
-										id={objetivo.idObjetivo.toString()}
-										title={objetivo.detalle ?? undefined}
-										label={objetivo.nom}
-										key={objetivo.idObjetivo}
-										onChange={() => handleSeleccionarObjetivo(objetivo.idObjetivo)}
-										checked={objetivosSeleccionados.includes(objetivo.idObjetivo)}
-									/>
-								))}
-							</div>
-							<div className='Lie'>
-								{objetivosDesde10a15.map((objetivo) => (
-									<Form.Check
-										id={objetivo.idObjetivo.toString()}
-										label={objetivo.nom}
-										title={objetivo.detalle ?? undefined}
-										key={objetivo.idObjetivo}
-										onChange={() => handleSeleccionarObjetivo(objetivo.idObjetivo)}
-										checked={objetivosSeleccionados.includes(objetivo.idObjetivo)}
-									/>
-								))}
-							</div>
-							<div className='Lie'>
-								{objetivosDesde16a20.map((objetivo) => (
-									<Form.Check
-										id={objetivo.idObjetivo.toString()}
-										label={objetivo.nom}
-										title={objetivo.detalle ?? undefined}
-										key={objetivo.idObjetivo}
-										onChange={() => handleSeleccionarObjetivo(objetivo.idObjetivo)}
-										checked={objetivosSeleccionados.includes(objetivo.idObjetivo)}
-									/>
-								))}
-							</div>
-						</div>
-						<p className=' mt-2 text-end w-100 fst-italic text-guide'>
-							*Deje el puntero sobre cada objetivo para ver el detalle
-						</p>
-					</Form>
-				</div>
+		<>
+			<p className='px-2 text-end w-100 fst-italic'>
+				Referencia:{' '}
+				<a
+					href='https://www.unl.edu.ar/pie/wp-content/uploads/sites/55/2021/02/Plan-Institucional-Estrat%C3%A9gico.pdf'
+					target='_blank'
+					rel='noopener noreferrer'
+					className='text-decoration-underline'
+				>
+					Plan Institucional Estratégico
+				</a>
+			</p>
+
+			{/* Ejes Transversales Section */}
+			<div className='d-flex flex-column justify-content-start align-items-center w-100'>
+				<h4>Ejes Transversales</h4>
+				<Row className='w-75'>
+					{ejesTransversales.map((objetivo) => (
+						<Col key={objetivo.idObjetivo} xs={12} md={4} className='mb-2'>
+							<Form.Check
+								id={objetivo.idObjetivo.toString()}
+								label={objetivo.nom}
+								title={objetivo.detalle ?? undefined}
+								onChange={() => handleSeleccionarObjetivo(objetivo.idObjetivo)}
+								checked={objetivosSeleccionados.includes(objetivo.idObjetivo)}
+							/>
+						</Col>
+					))}
+				</Row>
 			</div>
-			<Button
-				variant='success'
-				className=' mt-auto mb-3 align-self-center'
-				onClick={() => {
-					guardarActividad({
-						...activity,
-						listaObjetivos: objetivosSeleccionados,
-					});
-				}}
-			>
-				Guardar Actividad{' '}
-				{hayCambios && <ErrorOutline style={{ marginLeft: '10px', color: 'yellow' }} />}
-			</Button>
-		</div>
+
+			{/* Plan Institucional Section */}
+			<div className='d-flex flex-column justify-content-start align-items-center w-100 mt-4'>
+				<h4>Plan Institucional</h4>
+				<Form className='w-75'>
+					<Row>
+						{planInstitucional.map((items, index) => (
+							<Col key={index} xs={12} md={4}>
+								{renderCheckboxes(items)}
+							</Col>
+						))}
+					</Row>
+				</Form>
+				<p className='mt-2 text-end w-100 fst-italic' style={{ fontSize: '.8rem' }}>
+					*Al pasar el puntero sobre los iconos "¡", podrá ver el detalle.
+				</p>
+			</div>
+		</>
 	);
 }

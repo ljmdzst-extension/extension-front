@@ -1,12 +1,14 @@
 import axios from 'axios';
-import { UserData, UserFetch, UserListFetch } from '@/types/UserProps';
+import { Persona, UserData, UserFetch, UserListFetch, UserPersonaFetch } from '@/types/UserProps';
 import { privateAxiosInstance } from '../../axiosInstance';
 
-const basePath = '/metas/admin/usr';
+const adminBasePath = '/metas/admin/usr';
+const userBasePath = '/usr';
+
 
 export const getAllUsers = async (): Promise<UserListFetch> => {
 	try {
-		const response = await privateAxiosInstance.get<UserListFetch>(basePath);
+		const response = await privateAxiosInstance.get<UserListFetch>(adminBasePath);
 		return response.data;
 	} catch (error) {
 		if (
@@ -24,7 +26,7 @@ export const getAllUsers = async (): Promise<UserListFetch> => {
 
 export const getUserByID = async (id: string): Promise<UserFetch> => {
 	try {
-		const response = await privateAxiosInstance.get<UserFetch>(`${basePath}/${id}`);
+		const response = await privateAxiosInstance.get<UserFetch>(`${adminBasePath}/${id}`);
 		return response.data;
 	} catch (error) {
 		if (
@@ -42,7 +44,43 @@ export const getUserByID = async (id: string): Promise<UserFetch> => {
 
 export const putUsers = async (data: UserData): Promise<UserFetch> => {
 	try {
-		const response = await privateAxiosInstance.put<UserFetch>(basePath, data);
+		const response = await privateAxiosInstance.put<UserFetch>(adminBasePath, data);
+		return response.data;
+	} catch (error) {
+		if (
+			axios.isAxiosError(error) &&
+			error.response &&
+			error.response.data &&
+			error.response.data.error
+		) {
+			throw new Error(error.response.data.error);
+		} else {
+			throw new Error('An unexpected error occurred');
+		}
+	}
+};
+
+export const getPersonaUserData = async (id: string): Promise<UserPersonaFetch> => {
+	try {
+		const response = await privateAxiosInstance.get<UserPersonaFetch>(`${userBasePath}/${id}`);
+		return response.data;
+	} catch (error) {
+		if (
+			axios.isAxiosError(error) &&
+			error.response &&
+			error.response.data &&
+			error.response.data.error
+		) {
+			throw new Error(error.response.data.error);
+		} else {
+			throw new Error('An unexpected error occurred');
+		}
+	}
+};
+
+export const updatePersonaUserData = async (idUser: string, data: Persona): Promise<UserPersonaFetch> => {
+	try {
+		const response = await privateAxiosInstance.put<UserPersonaFetch>(`${userBasePath}/${idUser}`, data);
 		return response.data;
 	} catch (error) {
 		if (
