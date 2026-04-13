@@ -73,6 +73,8 @@ export interface ListaRelacione {
 	idRelacion: number;
 	nom: string;
 	tipoRelacion: TipoRelacion;
+	desde:Date | null;
+	hasta:Date | null;
 }
 
 export interface TipoRelacion {

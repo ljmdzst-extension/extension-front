@@ -17,6 +17,8 @@ interface Relacion {
 		idTipoRelacion: number;
 		nom: string;
 	};
+	desde: Date | null;
+	hasta: Date | null;
 }
 
 interface Option {
@@ -53,11 +55,13 @@ export default function FormArSecUU({ activity, saveData }: Props) {
 		}
 	}, [relacionSeleccionadas1, relacionSeleccionadas2, relacionSeleccionadas3, sippeSeleccionadas]);
 
+
+	console.log(bases.listaRelaciones);
 	const filtrarAreas = useCallback(
 		(nomRelacion: string): Option[] => {
 			if (!bases) return [];
 			return bases.listaRelaciones
-				.filter((relacion: Relacion) => relacion.tipoRelacion.nom === nomRelacion)
+				.filter((relacion: Relacion) => relacion.tipoRelacion.nom === nomRelacion && (relacion.desde === undefined || new Date(relacion.desde).getFullYear() <= activity.anio) && (relacion.hasta === undefined || new Date(relacion.hasta).getFullYear() >= activity.anio))
 				.map((relacion: Relacion) => ({
 					value: relacion.idRelacion,
 					label: relacion.nom,
@@ -102,7 +106,8 @@ export default function FormArSecUU({ activity, saveData }: Props) {
 		}
 	}, [bases, error]);
 
-	const fieldsConfig = [
+
+	/*
 		{
 			id: 'relacionSeleccionadas1',
 			label: 'Áreas internas de la secretaría',
@@ -111,9 +116,11 @@ export default function FormArSecUU({ activity, saveData }: Props) {
 			value: relacionSeleccionadas1,
 			onChange: setRelacionSeleccionadas1,
 		},
+	*/
+	const fieldsConfig = [
 		{
 			id: 'relacionSeleccionadas2',
-			label: 'Secretarías',
+			label: 'Áreas centrales',
 			placeholder: 'seleccionar',
 			options: filtrarAreas('interna_unl'),
 			value: relacionSeleccionadas2,
