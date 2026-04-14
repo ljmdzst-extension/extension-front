@@ -61,7 +61,7 @@ export default function FormArSecUU({ activity, saveData }: Props) {
 		(nomRelacion: string): Option[] => {
 			if (!bases) return [];
 			return bases.listaRelaciones
-				.filter((relacion: Relacion) => relacion.tipoRelacion.nom === nomRelacion && (relacion.desde === undefined || new Date(relacion.desde).getFullYear() <= activity.anio) && (relacion.hasta === undefined || new Date(relacion.hasta).getFullYear() >= activity.anio))
+				.filter((relacion: Relacion) => relacion.tipoRelacion.nom === nomRelacion && (relacion.desde === null || new Date(relacion.desde).getFullYear() <= activity.anio) && (relacion.hasta === null || new Date(relacion.hasta).getFullYear() >= activity.anio))
 				.map((relacion: Relacion) => ({
 					value: relacion.idRelacion,
 					label: relacion.nom,
