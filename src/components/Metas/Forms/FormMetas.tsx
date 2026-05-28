@@ -19,7 +19,7 @@ const defaultNuevaMeta: Meta = {
 	descripcion: '',
 	resultado: '',
 	observaciones: '',
-	valoracion: -1,
+	valoracion: 5,
 };
 
 interface Props {
@@ -230,16 +230,13 @@ const FormMetas = ({ activity, saveData }: Props) => {
 					<Form.Select
 						name='valoracion'
 						className={`${
-							nuevaMeta.valoracion === -1 ? 'placeholder-option' : ''
+							nuevaMeta.valoracion === 5 ? 'placeholder-option' : ''
 						}}`}
-						value={nuevaMeta.valoracion ?? -1}
+						value={nuevaMeta.valoracion ?? 5}
 						onChange={(e) => {
 							setNuevaMeta({ ...nuevaMeta, valoracion: parseInt(e.target.value) });
 						}}
 					>
-						<option key={'nn'} value={-1} disabled className=' placeholder-option '>
-							Valoración general de la actividad y los resultados alcanzados
-						</option>
 						{valoraciones?.map((valoracion) => (
 							<option
 								key={`${valoracion.nom}-${valoracion.idValoracion}`}
