@@ -80,7 +80,11 @@ const PlanificationPanel = ({
 						/>
 					) : (
 						<div style={{ height: availableHeight - 110 }}>
-							<FormSwitcher indexForm={indexForm} />
+							<FormSwitcher 
+							indexForm={indexForm} 
+							handleDeleteActividad={() => {
+								handleDeleteActividad();
+							}}/>
 						</div>
 					)}
 				</>

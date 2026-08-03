@@ -19,6 +19,7 @@ import LoadingSpinner from '@/components/Common/Spinner/LoadingSpinner';
 
 type FormSwitcherProps = {
 	indexForm: string;
+	handleDeleteActividad: () => void;
 };
 
 const FORM_TYPES = {
@@ -32,7 +33,7 @@ const FORM_TYPES = {
 	METAS: 'metas',
 };
 
-const FormSwitcher = ({ indexForm }: FormSwitcherProps) => {
+const FormSwitcher = ({ indexForm, handleDeleteActividad}: FormSwitcherProps) => {
 	const dispatch = useDispatch<AppDispatch>();
 	const { activity, isLoading } = useSelector((state: RootState) => state.actividad);
 	const { guardarActividad } = useGuardarActividad();
@@ -94,7 +95,9 @@ const FormSwitcher = ({ indexForm }: FormSwitcherProps) => {
 			{isLoading ? (
 				<LoadingSpinner />
 			) : (
-				<FormContainer handleSave={handleSave}>{form}</FormContainer>
+				<FormContainer handleSave={handleSave} handleDeleteActividad={handleDeleteActividad}>
+					{form}
+				</FormContainer>
 			)}
 		</>
 	);

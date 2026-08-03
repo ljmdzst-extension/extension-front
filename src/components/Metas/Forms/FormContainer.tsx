@@ -8,35 +8,47 @@ import CommonIconWithTooltip from '@/components/Common/Icon/CommonIconWithToolti
 type FormContainerProps = {
 	children: React.ReactNode;
 	handleSave: () => void;
+	handleDeleteActividad: () => void;
 };
 
-const FormContainer: React.FC<FormContainerProps> = ({ children, handleSave }) => {
+const FormContainer: React.FC<FormContainerProps> = ({ children, handleSave,handleDeleteActividad }) => {
 	const { hayCambios } = useSelector((state: RootState) => state.actividad);
 
 	return (
 		<div className='d-flex flex-column h-100'>
 			<div className='my-2 mx-4'>{children}</div>
-			<Button
-				variant='success'
-				className='btn-primary mt-auto mb-3 align-self-center'
-				onClick={handleSave}
-			>
-				<div className=' d-flex justify-content-between align-items-center'>
-					Guardar Actividad
-					{hayCambios && (
-						<CommonIconWithTooltip
-							tooltipText='Hay cambios sin guardar en el formulario'
-							Icon={ErrorOutline}
-							style={{
-								marginLeft: '.5rem',
-								color: 'yellow',
-								cursor: 'pointer',
-								fontSize: '1.3rem',
-							}}
-						/>
-					)}
-				</div>
-			</Button>
+
+			{/* Contenedor Flex para alinear los botones uno al lado del otro */}
+			<div className='d-flex gap-2 mt-auto mb-3 align-self-center'>
+				<Button
+					variant='success'
+					className='btn-primary'
+					onClick={handleSave}
+				>
+					<div className='d-flex justify-content-between align-items-center'>
+						Guardar Actividad
+						{hayCambios && (
+							<CommonIconWithTooltip
+								tooltipText='Hay cambios sin guardar en el formulario'
+								Icon={ErrorOutline}
+								style={{
+									marginLeft: '.5rem',
+									color: 'yellow',
+									cursor: 'pointer',
+									fontSize: '1.3rem',
+								}}
+							/>
+						)}
+					</div>
+				</Button>
+
+				<Button 
+					variant='danger' 
+					onClick={handleDeleteActividad}
+				>
+					Eliminar Actividad
+				</Button>
+			</div>
 		</div>
 	);
 };
