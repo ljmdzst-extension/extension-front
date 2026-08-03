@@ -82,10 +82,15 @@ export default function FormArSecUU({ activity, saveData }: Props) {
 
 	const formatearSippes = useCallback((): Option[] => {
 		if (!bases) return [];
-		return bases.listaProgramasSIPPE.map((sippe: ListaProgramasSIPPE) => ({
+		const sippeOptions = bases.listaProgramasSIPPE.map((sippe: ListaProgramasSIPPE) => ({
 			value: sippe.idProgramaSippe,
 			label: sippe.nom,
 		}));
+
+		if(activity.anio >= 2026){
+			return sippeOptions.filter((sippe: Option) => sippe.label !== 'Programa Historia y Memoria');
+		}
+		return sippeOptions;
 	}, [bases]);
 
 	const filtrarSippeSeleccionadas = useCallback(() => {
