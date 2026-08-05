@@ -44,7 +44,7 @@ export default function NavBar() {
 						/>
 					</a>
 					<a href='/' className=' text-decoration-none text-white ' style={{ fontSize: ' 14px' }}>
-						Secretaría de Extensión y Cultura
+						Secretaría de Extensión universitaria
 					</a>
 				</Navbar.Brand>
 				<Nav>

@@ -12,6 +12,7 @@ const AdminScreen = lazy(() => import('@/pages/app/AdminScreen'));
 const UserScreen = lazy(() => import('@/pages/app/UserScreen'));
 
 const ActivityScreen = lazy(() => import('@/pages/metas/ActivityScreen'));
+const GanttScreen = lazy(() => import('@/pages/metas/GanttScreen'));
 const GraphicsScreen = lazy(() => import('@/pages/metas/GraphicsScreen'));
 const MainScreen = lazy(() => import('@/pages/metas/MainScreen'));
 const ManagementScreen = lazy(() => import('@/pages/ManagementScreen'));
@@ -43,6 +44,7 @@ const RootNavigation = () => {
 					<Route path='user' element={<UserScreen />} />
 					<Route path='admin' element={<AdminScreen />} />
 					<Route path='metas' element={<MainScreen />} />
+					<Route path='gantt' element={<GanttScreen />} />
 					<Route path='metas/graficas' element={<GraphicsScreen />} />
 					<Route path='metas/:idPrograma/:idArea' element={<ActivityScreen />} />
 					<Route path='metas/:idPrograma/:idArea/resumen' element={<ResumenAreaScreen />} />

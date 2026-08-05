@@ -1,4 +1,4 @@
-import { Container, Row } from 'react-bootstrap';
+import { Button, Container, Row } from 'react-bootstrap';
 import { useState } from 'react';
 import Grafico from '@/components/Common/Graficos/Grafico';
 import { useGraphics } from '@/hooks/useGraphics';
@@ -58,6 +58,16 @@ const GraphicsScreen = () => {
 						navigation('/gestion/metas');
 					}}
 				/>
+
+				<Button
+					variant='secondary'
+					className='m-1 rounded cursor-pointer'
+					onClick={() => {
+						navigation('/gestion/gantt');
+					}}
+				>
+					Gantt
+				</Button>
 			</div>
 
 			<div className='d-flex justify-content-center align-items-center m-2'>
