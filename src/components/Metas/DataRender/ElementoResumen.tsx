@@ -18,9 +18,9 @@ const ElementoResumen = ({ element }: Props) => {
 	const { idActividad, desc, listaRelaciones, listaMetas, listaObjetivos, listaProgramasSIPPE } =
 		element;
 
+	const [isOpen, setIsOpen] = useState<boolean>(false);
 	const [areas, setAreas] = useState<LArea[]>([]);
-	const [listaSIPPE, setListaSIPPE] = useState<ListaProgramasSIPPE[]>();
-
+	const [, setListaSIPPE] = useState<ListaProgramasSIPPE[]>();
 	const [areasMap, setAreasMap] = useState<Record<string, Area>>({});
 
 	const { bases, error } = useSelector((state: RootState) => state.metas);
@@ -30,7 +30,7 @@ const ElementoResumen = ({ element }: Props) => {
 			setAreas(bases.lAreas);
 			setListaSIPPE(bases.listaProgramasSIPPE);
 		}
-	}, [bases, error, listaSIPPE]);
+	}, [bases, error]);
 
 	useEffect(() => {
 		const map: Record<string, LArea> = {};
@@ -47,260 +47,338 @@ const ElementoResumen = ({ element }: Props) => {
 	};
 
 	const renderArea = (data: number[], idTipoRelacion: number, nombreArea: string) => {
-		if (!data || data.length === 0) {
-			return null;
-		}
+		if (!data || data.length === 0) return null;
 
 		const elementosArea = data
 			.map((idRelacion) => extraerRelacionCompleta(idRelacion, idTipoRelacion))
 			.filter(Boolean)
 			.sort((a, b) => a.nom.localeCompare(b.nom));
 
-		if (elementosArea.length === 0) {
-			return null;
-		}
+		if (elementosArea.length === 0) return null;
 
 		return (
-			<li>
-				{nombreArea}
-				<ul>
+			<div style={styles.areaBlock}>
+				<span style={styles.areaTitle}>{nombreArea}</span>
+				<ul style={styles.areaList}>
 					{elementosArea.map((thisArea, index) => (
 						<li key={`${index}-${idTipoRelacion}`}>{thisArea.nom}</li>
 					))}
 				</ul>
-			</li>
+			</div>
 		);
 	};
 
 	function urlText(text: string) {
 		const urlRegex = /(https?:\/\/[^\s]+)/g;
-		const newText = text.replace(urlRegex, function (url) {
-			return `<a target='_blank' href=${url}>
-					${url}
-				</a>`;
+		return text.replace(urlRegex, (url) => {
+			return `<a target='_blank' rel='noopener noreferrer' href="${url}" style="color: #0d6efd; text-decoration: underline;">${url}</a>`;
 		});
-		return newText;
 	}
 
 	const renderObjetivos = () => {
 		if (!listaObjetivos || listaObjetivos.length === 0) {
-			return <div>No hay objetivos cargados</div>;
+			return <div style={styles.emptyText}>No hay objetivos cargados</div>;
 		}
 
 		const objetivosFiltrados = bases?.listaObjetivos.filter((objetivo) =>
 			listaObjetivos.includes(objetivo.idObjetivo),
 		);
 
-		if (!objetivosFiltrados) {
-			return <div>No hay objetivos filtrados</div>;
+		if (!objetivosFiltrados || objetivosFiltrados.length === 0) {
+			return <div style={styles.emptyText}>No hay objetivos filtrados</div>;
 		}
 
+		const estratega = objetivosFiltrados.filter((o) => o.idObjetivo <= 4);
+		const planInst = objetivosFiltrados.filter((o) => o.idObjetivo >= 5);
+
 		return (
-			<div className=' m-1'>
-				<div>
-					<h5>Objetivos estratégicos</h5>
-					<ul>
-						{objetivosFiltrados.map(
-							(objetivo, index) =>
-								objetivo.idObjetivo <= 4 && (
-									<li key={index}>
-										<p>{objetivo.nom}</p>
-									</li>
-								),
-						)}
-					</ul>
-				</div>
-				<div>
-					<h5>Plan institucional</h5>
-					<ul>
-						{objetivosFiltrados.map(
-							(objetivo, index) =>
-								objetivo.idObjetivo >= 5 && (
-									<li key={index}>
-										<p> {objetivo.nom}</p>
-									</li>
-								),
-						)}
-					</ul>
-				</div>
-				<p className=' px-2 text-end w-100 fst-italic'>
-					Referencia:{' '}
-					<a
-						href='https://www.unl.edu.ar/pie/wp-content/uploads/sites/55/2021/02/Plan-Institucional-Estrat%C3%A9gico.pdf'
-						target='_blank'
-						rel='noopener noreferrer'
-						className=' text-decoration-underline'
-					>
-						Plan Institucional Estratégico
-					</a>
-				</p>
+			<div style={styles.objetivosGrid}>
+				{estratega.length > 0 && (
+					<div>
+						<h6 style={styles.subSubtitle}>Objetivos Estratégicos</h6>
+						<ul style={styles.listDisc}>
+							{estratega.map((objetivo, index) => (
+								<li key={index}>{objetivo.nom}</li>
+							))}
+						</ul>
+					</div>
+				)}
+
+				{planInst.length > 0 && (
+					<div>
+						<h6 style={styles.subSubtitle}>Plan Institucional</h6>
+						<ul style={styles.listDisc}>
+							{planInst.map((objetivo, index) => (
+								<li key={index}>{objetivo.nom}</li>
+							))}
+						</ul>
+					</div>
+				)}
 			</div>
 		);
 	};
 
 	return (
-		<div style={styles.container}>
-			{/* Título de la primera sección de actividad, con estilo destacado */}
-			<div style={styles.titleContainerPrimary}>
-				<h5>Actividad: {idActividad}</h5>
-			</div>
-
-			{/* Descripción de la actividad */}
-			<div style={styles.sectionContainer}>
-				<p style={styles.paragraph}>{desc}</p>
-			</div>
-
-			{/* Objetivos */}
-			<div style={styles.sectionContainer}>
-				<div style={styles.titleContainer}>Lista Objetivos</div>
-				<div>{renderObjetivos()}</div>
-			</div>
-
-			{/* Metas */}
-			<div style={styles.sectionContainer}>
-				<div style={styles.titleContainer}>Metas</div>
-				<div style={styles.gridContainer}>
-					<div style={styles.gridTitle}>Meta/Resultado esperado</div>
-					<div style={styles.gridTitle}>Resultado alcanzado</div>
-					<div style={styles.gridTitle}>Observaciones</div>
-					<div style={styles.gridTitle}>Valoración</div>
+		<div style={styles.cardContainer}>
+			{/* Encabezado visible siempre con el Título/ID prominente */}
+			<div style={styles.cardHeader} onClick={() => setIsOpen(!isOpen)}>
+				<div style={styles.titleWrapper}>
+					<div style={styles.badge}>
+						ACTIVIDAD #{idActividad}
+					</div>
+					<h6 style={styles.mainTitle}>
+						{desc ? desc : `Actividad Sin Descripción (${idActividad})`}
+					</h6>
 				</div>
-
-				{listaMetas?.length ? (
-					listaMetas.map((meta, index) => (
-						<div style={styles.gridContainer} key={index}>
-							<div
-								style={styles.gridItem}
-								dangerouslySetInnerHTML={{ __html: urlText(meta.descripcion ?? '') }}
-							/>
-							<div
-								style={styles.gridItem}
-								dangerouslySetInnerHTML={{ __html: urlText(meta.resultado ?? '') }}
-							/>
-							<div
-								style={styles.gridItem}
-								dangerouslySetInnerHTML={{ __html: urlText(meta.observaciones ?? '') }}
-							/>
-							<div style={styles.gridItem}>{meta?.valoracion ?? 'No hay valoración cargada'}</div>
-						</div>
-					))
-				) : (
-					<div style={styles.paragraph}>No hay metas cargadas</div>
-				)}
-			</div>
-
-			{/* Áreas */}
-			<div style={styles.sectionContainer}>
-				<div style={styles.titleContainer}>Áreas</div>
-				<div style={styles.paragraph}>
-					{listaRelaciones?.length !== undefined && listaRelaciones.length > 0 ? (
-						<ol style={styles.list}>
-							{renderArea(listaRelaciones, 1, 'Internas Secretaria')}
-							{renderArea(listaRelaciones, 2, 'Otras áreas centrales')}
-							{renderArea(listaRelaciones, 3, 'Unidades Académicas involucradas')}
-							{listaProgramasSIPPE?.length !== undefined && listaRelaciones.length > 0
-								? renderArea(listaProgramasSIPPE, 4, 'Programas de Extensión')
-								: null}
-						</ol>
-					) : (
-						<p>No hay Áreas Cargadas</p>
-					)}
-				</div>
-			</div>
-
-			{/* Link de referencia */}
-			<div style={styles.linkContainer}>
-				<a
-					href='https://www.unl.edu.ar/pie/wp-content/uploads/sites/55/2021/02/Plan-Institucional-Estrat%C3%A9gico.pdf'
-					target='_blank'
-					rel='noopener noreferrer'
-					style={styles.link}
+				<button 
+					type='button' 
+					style={styles.toggleBtn}
+					onClick={(e) => {
+						e.stopPropagation(); // Evita que se dispare dos veces si el padre tiene onClick
+						setIsOpen(!isOpen);
+					}}
 				>
-					Plan Institucional Estratégico
-				</a>
+					<span 
+						style={{ 
+							display: 'inline-block', 
+							transform: isOpen ? 'rotate(0deg)' : 'rotate(90deg)', 
+							transition: 'transform 0.2s ease-in-out',
+							cursor: 'pointer'
+						}}
+					>
+						▼
+					</span>
+				</button>
 			</div>
+
+			{/* Contenido desplegable */}
+			{isOpen && (
+				<div style={styles.cardBody}>
+					{/* Sección Objetivos */}
+					<div style={styles.section}>
+						<div style={styles.sectionHeader}>OBJETIVOS</div>
+						{renderObjetivos()}
+					</div>
+
+					{/* Sección Metas */}
+					<div style={styles.section}>
+						<div style={styles.sectionHeader}>METAS Y RESULTADOS</div>
+						{listaMetas?.length ? (
+							<div style={styles.tableWrapper}>
+								<div style={styles.gridHeader}>
+									<div>Meta / Resultado esperado</div>
+									<div>Resultado alcanzado</div>
+									<div>Observaciones</div>
+									<div>Valoración</div>
+								</div>
+								{listaMetas.map((meta, index) => (
+									<div style={styles.gridRow} key={index}>
+										<div
+											style={styles.gridCell}
+											dangerouslySetInnerHTML={{ __html: urlText(meta.descripcion ?? '-') }}
+										/>
+										<div
+											style={styles.gridCell}
+											dangerouslySetInnerHTML={{ __html: urlText(meta.resultado ?? '-') }}
+										/>
+										<div
+											style={styles.gridCell}
+											dangerouslySetInnerHTML={{ __html: urlText(meta.observaciones ?? '-') }}
+										/>
+										<div style={styles.gridCellBold}>
+											{meta?.valoracion ?? 'Sin valoración'}
+										</div>
+									</div>
+								))}
+							</div>
+						) : (
+							<div style={styles.emptyText}>No hay metas cargadas</div>
+						)}
+					</div>
+
+					{/* Sección Áreas */}
+					<div style={styles.section}>
+						<div style={styles.sectionHeader}>ÁREAS INVOLUCRADAS</div>
+						{listaRelaciones?.length !== undefined && listaRelaciones.length > 0 ? (
+							<div style={styles.areasGrid}>
+								{renderArea(listaRelaciones, 1, 'Internas Secretaría')}
+								{renderArea(listaRelaciones, 2, 'Otras Áreas Centrales')}
+								{renderArea(listaRelaciones, 3, 'Unidades Académicas Involucradas')}
+								{listaProgramasSIPPE?.length !== undefined && listaRelaciones.length > 0
+									? renderArea(listaProgramasSIPPE, 4, 'Programas de Extensión')
+									: null}
+							</div>
+						) : (
+							<div style={styles.emptyText}>No hay áreas cargadas</div>
+						)}
+					</div>
+
+					{/* Enlace de referencia */}
+					<div style={{ textAlign: 'right' }}>
+						<a
+							href='https://www.unl.edu.ar/pie/wp-content/uploads/sites/55/2021/02/Plan-Institucional-Estrat%C3%A9gico.pdf'
+							target='_blank'
+							rel='noopener noreferrer'
+							style={styles.link}
+						>
+							Plan Institucional Estratégico
+						</a>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 };
 
 const styles = {
-	container: {
+	cardContainer: {
+		width: '100%',
+		minHeight: '65px',
+		flexShrink: 0, // EVITA QUE SE APLASTEN EN LISTAS LARGAS
+		backgroundColor: '#ffffff',
+		borderRadius: '8px',
+		border: '1px solid #0a4b43',
+		boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+		marginBottom: '8px',
+		overflow: 'hidden',
+	},
+	cardHeader: {
+		padding: '14px 18px',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		cursor: 'pointer',
+		backgroundColor: '#ffffff',
+		borderLeft: '5px solid #0a4b43',
+	},
+	titleWrapper: {
 		display: 'flex',
 		flexDirection: 'column' as const,
-		border: '2px solid #cfcfcf',
-		backgroundColor: '#e5e5e5',
+		gap: '4px',
+		width: '90%',
+	},
+	badge: {
+		fontSize: '11px',
+		fontWeight: '700' as const,
+		color: '#0a4b43',
+		letterSpacing: '0.5px',
+	},
+	mainTitle: {
+		margin: 0,
+		fontSize: '15px',
+		fontWeight: '600' as const,
+		color: '#354152',
+		lineHeight: '1.2',
+	},
+	toggleBtn: {
+		background: 'none',
+		border: 'none',
 		fontSize: '14px',
-		marginBottom: '32px',
-		borderRadius: '8px',
-		boxShadow: '0 4px 8px rgba(0, 0, 0, 0.05)',
+		color: '#6b7280',
+		cursor: 'pointer',
+		padding: '4px 8px',
 	},
-	titleContainerPrimary: {
-		backgroundColor: '#0a4b43',
-		color: 'white',
-		textAlign: 'center' as const,
-		padding: '10px 0',
-		fontSize: '18px',
-		fontWeight: 'bold',
-		borderRadius: '8px 8px 0 0',
+	cardBody: {
+		padding: '16px',
+		backgroundColor: '#f9fafb',
+		borderTop: '1px solid #e5e7eb',
+		display: 'flex',
+		flexDirection: 'column' as const,
+		gap: '16px',
 	},
-	titleContainer: {
-		backgroundColor: '#4A9F95',
-		color: 'white',
-		textAlign: 'center' as const,
-		padding: '10px 0',
-		fontSize: '18px',
-		borderRadius: '8px 8px 0 0',
-		fontWeight: 'bold',
+	section: {
+		backgroundColor: '#ffffff',
+		padding: '12px 16px',
+		borderRadius: '6px',
+		border: '1px solid #e5e7eb',
 	},
-	sectionContainer: {
-		margin: '8px 0',
+	sectionHeader: {
+		fontSize: '12px',
+		fontWeight: '700' as const,
+		color: '#0a4b43',
+		marginBottom: '8px',
+		letterSpacing: '0.5px',
 	},
-	paragraph: {
-		margin: '8px',
-		lineHeight: '1.5',
-	},
-	gridContainer: {
-		display: 'grid',
-		gridTemplateColumns: 'repeat(4, 1fr)',
-		backgroundColor: '#fff',
-		borderRadius: '8px',
-		boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-	},
-	gridTitle: {
-		padding: '12px',
-		backgroundColor: '#d9e7e6',
-		fontWeight: 'bold',
-		textAlign: 'center' as const,
-		borderBottom: '2px solid #ccc',
-		borderRadius: '8px 8px 0 0',
-	},
-	gridItem: {
-		padding: '12px',
-		backgroundColor: '#f9f9f9',
-		border: '1px solid #e0e0e0',
-		borderRadius: '4px',
-	},
-	link: {
-		color: '#08443c',
-		textDecoration: 'underline',
+	emptyText: {
+		fontSize: '13px',
+		color: '#9ca3af',
 		fontStyle: 'italic',
 	},
-	gridItemHover: {
-		backgroundColor: '#e0f2f1',
+	objetivosGrid: {
+		display: 'grid',
+		gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+		gap: '12px',
 	},
-	list: {
-		listStyleType: 'none',
-		padding: 0,
+	subSubtitle: {
+		margin: '0 0 4px 0',
+		fontSize: '13px',
+		fontWeight: '600' as const,
+		color: '#374151',
 	},
-	listItem: {
-		marginBottom: '8px',
+	listDisc: {
+		margin: 0,
+		paddingLeft: '18px',
+		fontSize: '13px',
+		color: '#4b5563',
 	},
-	listItemArea: {
-		marginBottom: '4px',
+	tableWrapper: {
+		display: 'flex',
+		flexDirection: 'column' as const,
+		border: '1px solid #e5e7eb',
+		borderRadius: '4px',
+		overflow: 'hidden',
 	},
-	linkContainer: {
-		textAlign: 'end' as const,
-		padding: '8px 16px',
+	gridHeader: {
+		display: 'grid',
+		gridTemplateColumns: '2fr 2fr 2fr 1fr',
+		backgroundColor: '#f3f4f6',
+		padding: '8px 12px',
+		fontWeight: '600' as const,
+		fontSize: '12px',
+		color: '#374151',
+	},
+	gridRow: {
+		display: 'grid',
+		gridTemplateColumns: '2fr 2fr 2fr 1fr',
+		borderTop: '1px solid #e5e7eb',
+	},
+	gridCell: {
+		padding: '8px 12px',
+		fontSize: '13px',
+		color: '#4b5563',
+	},
+	gridCellBold: {
+		padding: '8px 12px',
+		fontSize: '13px',
+		fontWeight: '600' as const,
+		color: '#0a4b43',
+	},
+	areasGrid: {
+		display: 'grid',
+		gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+		gap: '8px',
+	},
+	areaBlock: {
+		backgroundColor: '#f3f4f6',
+		padding: '8px 12px',
+		borderRadius: '4px',
+	},
+	areaTitle: {
+		fontSize: '12px',
+		fontWeight: '700' as const,
+		color: '#374151',
+		display: 'block',
+	},
+	areaList: {
+		margin: 0,
+		paddingLeft: '16px',
+		fontSize: '12px',
+		color: '#4b5563',
+	},
+	link: {
+		fontSize: '12px',
+		color: '#0a4b43',
+		textDecoration: 'underline',
 	},
 };
 

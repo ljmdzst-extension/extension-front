@@ -58,17 +58,19 @@ const GraphicsScreen = () => {
 						navigation('/gestion/metas');
 					}}
 				/>
+			</div>
 
-				<Button
+
+			<Button
 					variant='secondary'
-					className='m-1 rounded cursor-pointer'
+					className='m-2 rounded cursor-pointer'
 					onClick={() => {
 						navigation('/gestion/gantt');
 					}}
 				>
-					Gantt
-				</Button>
-			</div>
+					Ver grafico de Gantt
+			</Button>
+
 
 			<div className='d-flex justify-content-center align-items-center m-2'>
 				<YearSelector year={year} onYearChange={handleYearChange} />

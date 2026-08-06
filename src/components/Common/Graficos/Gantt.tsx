@@ -16,7 +16,7 @@ interface GanttProps {
 export default function GanttChart({ data }: GanttProps) {
   const availableYears = useMemo(() => {
     const today = new Date();
-    const years = data.map((item) => new Date(`${item.desde?item.desde:today.toISOString().split('T')[0]}T00:00:00`).getFullYear());
+    const years = data.map((item) => item.anio ?? new Date(`${item.desde?item.desde:today.toISOString().split('T')[0]}T00:00:00`).getFullYear());
     return Array.from(new Set(years)).sort((a, b) => a - b);
   }, [data]);
 
@@ -37,7 +37,7 @@ export default function GanttChart({ data }: GanttProps) {
     return data
       .filter((item) => {
         if (!item.desde || !item.hasta) return false;
-        const year = new Date(`${item.desde}T00:00:00`).getFullYear();
+        const year = item.anio ?? new Date(`${item.desde}T00:00:00`).getFullYear();
         return year === selectedYear && item.idArea === selectedArea;
       })
       .map((item, index) => {
