@@ -46,3 +46,26 @@ export const getGraphicsDataByArea = async (
 		}
 	}
 };
+
+export const getGraphicsDataGantt = async (anio?: number, area?: number): Promise<GraphicsResponse> => {
+
+	try {
+		const response = await privateAxiosInstance.get<GraphicsResponse>(
+			`${basePath}/graficos/gantt/${anio}/${area}`,
+		);
+		return response.data;
+	} catch (error) {
+		if (
+			axios.isAxiosError(error) &&
+			error.response &&
+			error.response.data &&
+			error.response.data.error
+		) {
+
+			throw new Error(error.response.data.error);
+
+		} else {
+			throw new Error('An unexpected error occurred');
+		}
+	}
+}

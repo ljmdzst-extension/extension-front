@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import {getGraphicsDataGantt} from '@/services/api/private/metas/graphics/graphicsService';
+
 
 export interface RawData {
   nro:number;

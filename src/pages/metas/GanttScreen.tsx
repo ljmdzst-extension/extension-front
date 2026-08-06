@@ -4,7 +4,6 @@ import CommonTitle from '@/components/Common/Text/CommonTitle';
 import { ArrowBack } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
-
 const GanttScreen = () => {
 
   const navigation = useNavigate();
