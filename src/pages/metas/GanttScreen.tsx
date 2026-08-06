@@ -5,6 +5,7 @@ const GanttScreen = () => {
   return (
     <div className='container my-3'>
       <div className='w-100'>
+        <h2 className='text-center mb-4'>Gantt Chart</h2>
         <GanttChart data={sampleData} />
       </div>
     </div>

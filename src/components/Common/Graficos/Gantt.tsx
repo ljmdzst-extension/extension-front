@@ -1,10 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 export interface RawData {
+  nro:number;
   idArea: number;
   desde: string;
   hasta: string | null;
+  anio?: number; // Año opcional para filtrar
 }
 
 interface GanttProps {
@@ -13,7 +15,8 @@ interface GanttProps {
 
 export default function GanttChart({ data }: GanttProps) {
   const availableYears = useMemo(() => {
-    const years = data.map((item) => new Date(`${item.desde}T00:00:00`).getFullYear());
+    const today = new Date();
+    const years = data.map((item) => new Date(`${item.desde?item.desde:today.toISOString().split('T')[0]}T00:00:00`).getFullYear());
     return Array.from(new Set(years)).sort((a, b) => a - b);
   }, [data]);
 
@@ -39,13 +42,15 @@ export default function GanttChart({ data }: GanttProps) {
       })
       .map((item, index) => {
         const startDate = new Date(`${item.desde}T00:00:00`).getTime();
-        const endDate = item.hasta 
-          ? new Date(`${item.hasta}T00:00:00`).getTime() 
-          : startDate;
+        const endDateObj = new Date(`${item.hasta}T00:00:00`);
 
+        // Si la fecha desde y hasta son iguales, sumamos 1 día exacto a endDateObj
+        if (item.desde === item.hasta) {
+            endDateObj.setDate(endDateObj.getDate() + 1);
+        }
         return {
-          task: `Tarea ${index + 1}`,
-          range: [startDate, endDate],
+          nro: `Act. ${item.nro}`,
+          range: [startDate, endDateObj.getTime()],
           desde: item.desde,
           hasta: item.hasta || item.desde,
           idArea: item.idArea
@@ -114,7 +119,7 @@ export default function GanttChart({ data }: GanttProps) {
               domain={['dataMin', 'dataMax']}
               tickFormatter={(time) => new Date(time).toLocaleDateString()}
             />
-            <YAxis type="category" dataKey="task" interval={0} />
+            <YAxis type="category" dataKey="nro" interval={0} />
             <Tooltip
               formatter={(_, __, props) => [
                 `Desde: ${props.payload.desde} | Hasta: ${props.payload.hasta}`,
