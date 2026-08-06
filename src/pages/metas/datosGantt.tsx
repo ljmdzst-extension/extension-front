@@ -1,6 +1,6 @@
 import {RawData} from '@/components/Common/Graficos/Gantt';
 
-export const sampleData: ReadonlyArray<RawData> = Object.freeze(
+export const sampleData: RawData[] = Object.freeze(
   [
     [1, 7, '2025-03-14', '2025-03-28'],
     [5, 21, '2023-07-12', '2023-11-12'],
