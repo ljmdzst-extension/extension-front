@@ -47,11 +47,11 @@ export const getGraphicsDataByArea = async (
 	}
 };
 
-export const getGraphicsDataGantt = async (anio?: number, area?: number): Promise<GraphicsResponse> => {
+export const getGraphicsDataGantt = async (anio?: number): Promise<GraphicsResponse> => {
 
 	try {
 		const response = await privateAxiosInstance.get<GraphicsResponse>(
-			`${basePath}/graficos/gantt/${anio}/${area}`,
+			`${basePath}/gantt/${anio}`,
 		);
 		return response.data;
 	} catch (error) {

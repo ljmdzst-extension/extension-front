@@ -1,101 +1,135 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import {getGraphicsDataGantt} from '@/services/api/private/metas/graphics/graphicsService';
+import { getGraphicsDataGantt } from '@/services/api/private/metas/graphics/graphicsService';
 
-
-export interface RawData {
-  nro:number;
+// Tipos adaptados al contrato de la API
+export interface Activity {
   idArea: number;
-  desde: string;
-  hasta: string | null;
-  anio?: number; // Año opcional para filtrar
+  anio: number;
+  desc: string;
+  nro: number;
+  fechaDesde: string;
+  fechaHasta: string | null;
 }
 
-interface GanttProps {
-  data: RawData[];
+export interface Area {
+  idArea: number;
+  nom: string;
 }
 
-export default function GanttChart({ data }: GanttProps) {
-  const availableYears = useMemo(() => {
-    const today = new Date();
-    const years = data.map((item) => item.anio ?? new Date(`${item.desde?item.desde:today.toISOString().split('T')[0]}T00:00:00`).getFullYear());
-    return Array.from(new Set(years)).sort((a, b) => a - b);
-  }, [data]);
+export interface GraphicsResponse {
+  activities: Activity[];
+  areas: Area[];
+}
 
-  const [selectedYear, setSelectedYear] = useState<number>(
-    availableYears[0] ?? new Date().getFullYear()
-  );
+export default function GanttChart({ selectedYear }: { selectedYear: number }) {
+  const [data, setData] = useState<GraphicsResponse>({ activities: [], areas: [] });
+  const [selectedAreaId, setSelectedAreaId] = useState<number | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const availableAreas = useMemo(() => {
-    const areas = data.map((item) => item.idArea);
-    return Array.from(new Set(areas)).sort((a, b) => a - b);
-  }, [data]);
+  // 1. Fetch de datos cada vez que cambia el año prop
+  useEffect(() => {
+    let isMounted = true;
 
-  const [selectedArea, setSelectedArea] = useState<number>(
-    availableAreas[0] ?? (availableAreas.length > 0 ? availableAreas[0] : 0)
-  );
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await getGraphicsDataGantt(selectedYear);
 
-  const chartData = useMemo(() => {
-    return data
-      .filter((item) => {
-        if (!item.desde || !item.hasta) return false;
-        const year = item.anio ?? new Date(`${item.desde}T00:00:00`).getFullYear();
-        return year === selectedYear && item.idArea === selectedArea;
-      })
-      .map((item, index) => {
-        const startDate = new Date(`${item.desde}T00:00:00`).getTime();
-        const endDateObj = new Date(`${item.hasta}T00:00:00`);
+        if (isMounted) {
+          // Desestructuración defensiva por si la respuesta viene envuelta en response.data
+          const payload = (response as any)?.data ?? response;
+          const safeAreas = payload?.areas ?? [];
+          const safeActivities = payload?.activities ?? [];
 
-        // Si la fecha desde y hasta son iguales, sumamos 1 día exacto a endDateObj
-        if (item.desde === item.hasta) {
-            endDateObj.setDate(endDateObj.getDate() + 1);
+          setData({
+            areas: safeAreas,
+            activities: safeActivities,
+          });
+
+          // Selecciona el ID de la primera área por defecto si existe
+          if (safeAreas.length > 0) {
+            setSelectedAreaId(safeAreas[0].idArea);
+          } else {
+            setSelectedAreaId(null);
+          }
         }
+      } catch (err: any) {
+        if (isMounted) {
+          setError(err.message || 'Error al cargar los datos');
+        }
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedYear]);
+
+  // Encuentra el nombre del área activa para mostrar en el tooltip
+  const activeAreaName = useMemo(() => {
+    return data?.areas?.find((area) => area.idArea === selectedAreaId)?.nom || '';
+  }, [data?.areas, selectedAreaId]);
+
+  // 2. Filtrado y formateo de actividades para Recharts
+  const chartData = useMemo(() => {
+    if (!selectedAreaId || !data?.activities) return [];
+
+    return (data.activities ?? [])
+      .filter((item) => {
+        if (!item?.fechaDesde) return false;
+        return item.idArea === selectedAreaId;
+      })
+      .map((item) => {
+        const startDate = new Date(`${item.fechaDesde}T00:00:00`).getTime();
+        const hasta = item.fechaHasta || item.fechaDesde;
+        const endDateObj = new Date(`${hasta}T00:00:00`);
+
+        // Si la fecha desde y hasta son iguales, sumamos 1 día para visibilidad en el gráfico
+        if (item.fechaDesde === hasta) {
+          endDateObj.setDate(endDateObj.getDate() + 1);
+        }
+
         return {
           nro: `Act. ${item.nro}`,
+          desc: item.desc,
           range: [startDate, endDateObj.getTime()],
-          desde: item.desde,
-          hasta: item.hasta || item.desde,
-          idArea: item.idArea
+          desde: item.fechaDesde,
+          hasta: hasta,
+          nombreArea: activeAreaName,
+
         };
       });
-  }, [data, selectedYear, selectedArea]);
+  }, [data?.activities, selectedAreaId, activeAreaName]);
 
-  // Calculamos la altura del canvas del gráfico según las tareas
+  // Calculamos la altura dinámica según la cantidad de barras
   const computedHeight = Math.max(300, chartData.length * 35);
+
+  if (loading) return <div>Cargando datos del gráfico...</div>;
+  if (error) return <div style={{ color: 'red' }}>{error}</div>;
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Controles de Selección */}
       <div style={{ marginBottom: '15px', display: 'flex', gap: '15px', flexShrink: 0 }}>
         <div>
-          <label htmlFor="year-select" style={{ marginRight: '8px', fontWeight: 'bold' }}>
-            Seleccionar Año:
-          </label>
-          <select
-            id="year-select"
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(Number(e.target.value))}
-          >
-            {availableYears.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
           <label htmlFor="area-select" style={{ marginRight: '8px', fontWeight: 'bold' }}>
             Seleccionar Área:
           </label>
           <select
             id="area-select"
-            value={selectedArea}
-            onChange={(e) => setSelectedArea(Number(e.target.value))}
+            value={selectedAreaId ?? ''}
+            onChange={(e) => setSelectedAreaId(Number(e.target.value))}
           >
-            {availableAreas.map((area) => (
-              <option key={area} value={area}>
-                {area}
+            {data?.areas?.map((area) => (
+              <option key={area.idArea} value={area.idArea}>
+                {area.nom}
               </option>
             ))}
           </select>
@@ -103,15 +137,15 @@ export default function GanttChart({ data }: GanttProps) {
       </div>
 
       {/* Contenedor con Scroll para evitar el desbordamiento */}
-      <div 
-        style={{ 
-          width: '100%', 
-          maxHeight: '65vh', 
-          overflowY: 'auto', 
+      <div
+        style={{
+          width: '100%',
+          maxHeight: '65vh',
+          overflowY: 'auto',
           overflowX: 'hidden',
           border: '1px solid #e2e8f0',
           borderRadius: '8px',
-          padding: '10px'
+          padding: '10px',
         }}
       >
         <ResponsiveContainer width="100%" height={computedHeight}>
@@ -122,10 +156,10 @@ export default function GanttChart({ data }: GanttProps) {
               tickFormatter={(time) => new Date(time).toLocaleDateString()}
             />
             <YAxis type="category" dataKey="nro" interval={0} />
-            <Tooltip
+            <Tooltip 
               formatter={(_, __, props) => [
-                `Desde: ${props.payload.desde} | Hasta: ${props.payload.hasta}`,
-                `Área ${props.payload.idArea}`
+                `${props.payload.desc}`,
+                `Desde: ${props.payload.desde} | Hasta: ${props.payload.hasta}`
               ]}
             />
             <Bar dataKey="range" fill="#3182ce" radius={4} barSize={20} />
