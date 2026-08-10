@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { LArea, ListaProgramasSIPPE } from '@/types/BasesProps';
-import { Actividad } from '@/types/ActivityProps';
+import { Actividad, Institucione } from '@/types/ActivityProps';
 
 interface Props {
 	element: Actividad;
@@ -15,7 +15,7 @@ interface Area {
 }
 
 const ElementoResumen = ({ element }: Props) => {
-	const { idActividad, desc, listaRelaciones, listaMetas, listaObjetivos, listaProgramasSIPPE } =
+	const { idActividad, desc, listaRelaciones, listaMetas, listaObjetivos, listaInstituciones, listaProgramasSIPPE } =
 		element;
 
 	const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -118,6 +118,22 @@ const ElementoResumen = ({ element }: Props) => {
 		);
 	};
 
+	const renderInstituciones = (data: Institucione[]) => {
+		if (!data || data.length === 0) return null;
+
+		
+		return (
+			<div style={styles.areaBlock}>
+				<ul style={styles.areaList}>
+					{data.map((inst, index) => (
+						<li key={index}>{inst.nom}</li>
+					))}
+				</ul>
+			</div>
+		);
+	};
+
+
 	return (
 		<div style={styles.cardContainer}>
 			{/* Encabezado visible siempre con el Título/ID prominente */}
@@ -186,7 +202,7 @@ const ElementoResumen = ({ element }: Props) => {
 											dangerouslySetInnerHTML={{ __html: urlText(meta.observaciones ?? '-') }}
 										/>
 										<div style={styles.gridCellBold}>
-											{meta?.valoracion ?? 'Sin valoración'}
+											{meta?.nombreValoracion ?? 'Sin valoración'}
 										</div>
 									</div>
 								))}
@@ -210,6 +226,18 @@ const ElementoResumen = ({ element }: Props) => {
 							</div>
 						) : (
 							<div style={styles.emptyText}>No hay áreas cargadas</div>
+						)}
+					</div>
+
+
+					<div style={styles.section}>
+						<div style={styles.sectionHeader}>INSTITUCIONES INVOLUCRADAS</div>
+						{listaInstituciones?.length !== undefined && listaInstituciones.length > 0 ? (
+							<div style={styles.areasGrid}>
+								{renderInstituciones(listaInstituciones)}
+							</div>
+						) : (
+							<div style={styles.emptyText}>No hay instituciones cargadas</div>
 						)}
 					</div>
 
@@ -280,7 +308,7 @@ const styles = {
 	},
 	cardBody: {
 		padding: '16px',
-		backgroundColor: '#f9fafb',
+		backgroundColor: '#f3f4f6',
 		borderTop: '1px solid #e5e7eb',
 		display: 'flex',
 		flexDirection: 'column' as const,
@@ -301,7 +329,7 @@ const styles = {
 	},
 	emptyText: {
 		fontSize: '13px',
-		color: '#9ca3af',
+		color: '#393a3a',
 		fontStyle: 'italic',
 	},
 	objetivosGrid: {
@@ -319,7 +347,7 @@ const styles = {
 		margin: 0,
 		paddingLeft: '18px',
 		fontSize: '13px',
-		color: '#4b5563',
+		color: '#000000',
 	},
 	tableWrapper: {
 		display: 'flex',
@@ -345,7 +373,7 @@ const styles = {
 	gridCell: {
 		padding: '8px 12px',
 		fontSize: '13px',
-		color: '#4b5563',
+		color: '#000000',
 	},
 	gridCellBold: {
 		padding: '8px 12px',

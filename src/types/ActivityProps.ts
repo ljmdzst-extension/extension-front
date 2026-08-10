@@ -57,6 +57,7 @@ export interface Meta {
 	resultado: string;
 	observaciones: string;
 	valoracion: number;
+	nombreValoracion: string;
 }
 
 export interface Ubicacione {

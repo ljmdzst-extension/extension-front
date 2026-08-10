@@ -136,6 +136,14 @@ export default function GanttChart({ selectedYear }: { selectedYear: number }) {
         </div>
       </div>
 
+
+
+      {chartData.length === 0 && (
+        <div style={{ textAlign: 'center', marginTop: '20px', color: '#718096' }}>
+          No hay actividades disponibles para el año {selectedYear} y el área seleccionada.
+        </div>
+      )}
+
       {/* Contenedor con Scroll para evitar el desbordamiento */}
       <div
         style={{
