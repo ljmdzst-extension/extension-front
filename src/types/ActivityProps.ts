@@ -48,7 +48,13 @@ export interface FechasPuntuale {
 export interface Institucione {
 	idInstitucion: number;
 	nom: string;
-	ubicacion: string;
+	ubicacion?: string;
+	pais?: string;
+	provincia?: string;
+	ciudad?: string;
+	direccion?: string;
+	latitud?: string;
+	longitud?: string;
 }
 
 export interface Meta {
