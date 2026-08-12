@@ -19,7 +19,7 @@ interface LocationData {
   displayName: string;
 }
 
-const handleSearch = async ({street,city,state,country}) => {
+const handleSearch = async ({street,city,state,country},tries = 0) => {
 
 	const query = [street, city, state, country].filter(Boolean).join(', ');
 
@@ -62,9 +62,19 @@ const handleSearch = async ({street,city,state,country}) => {
 		
 	  } else {
 		console.log('No se encontraron resultados para la dirección ingresada.');
+		return undefined;
 	  }
 	} catch (err) {
 	  console.error('Error al buscar dirección:', err);
+	  if(tries < 3){
+
+		await new Promise((resolve) => setTimeout(resolve, 1000)); // frenamos la ejecucion por 1 segundo antes de reintentar
+
+      	return await handleSearch({ street, city, state, country }, tries + 1);
+
+	  }
+
+	  return undefined;
 	  //setError('Ocurrió un error al consultar el servicio de ubicación.');
 	} 
 
@@ -82,6 +92,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 	const [name, setName] = useState('');
 	const [ubicacion, setUbicacion] = useState('');
 	const [coordenadas, setCoordenadas] = useState('');
+	const [guardando, setGuardando] = useState(false);
 
 	const [modoUbicacion, setModoUbicacion] = useState('direccion');
 
@@ -97,6 +108,8 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 
 	const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
+
+		setGuardando(true);
 
 		// 1. Construir las variables locales en base al modo seleccionado
 		let finalUbicacion = ubicacion;
@@ -121,10 +134,49 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 				finalCoordenadas = `${searchResult.lat}, ${searchResult.lng}`;
 				latitud = searchResult.lat.toString();
 				longitud = searchResult.lng.toString();
-			
+
+				if(!isValidCoordinates(finalCoordenadas)){
+					Swal.fire({
+						title: 'Error',
+						text: 'Las coordenadas obtenidas no son válidas. Verifique la dirección ingresada.',
+						icon: 'error',
+						confirmButtonText: 'Cerrar',
+					});
+
+					setGuardando(false);
+
+					return;
+				}
+			} else {
+
+				Swal.fire({
+					title: 'Error',
+					text: 'No se pudieron obtener las coordenadas para la dirección ingresada. Verifique que la dirección sea correcta o ingrese las coordenadas manualmente. En el caso que la direccion sea correcta ignore este mensaje.',
+					icon: 'error',
+					confirmButtonText: 'Cerrar',
+				});
+
+				setGuardando(false);
+
+				return;
+
 			}
 		} else if (modoUbicacion === 'coordenadas' && ubicacion.trim() === '') {
-			// En modo coordenadas, podemos asignar una ubicación por defecto
+
+
+			if (!isValidCoordinates(coordenadas)) {
+				Swal.fire({
+					title: 'Error',
+					text: 'Las coordenadas ingresadas no son válidas. Asegúrese de que estén en el formato correcto: "latitud, longitud".',
+					icon: 'error',
+					confirmButtonText: 'Cerrar',
+				});
+
+				setGuardando(false);
+
+				return;
+
+			}
 
 			if (!finalUbicacion) {
 				finalUbicacion = 'Ubicación por Coordenadas GPS';
@@ -154,6 +206,8 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 				icon: 'error',
 				confirmButtonText: 'Cerrar',
 			});
+			setGuardando(false);
+
 			return;
 		}
 
@@ -181,6 +235,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 		setPais('Argentina');
 		setCoordenadas('');
 		setUbicacion('');
+		setGuardando(false);
 	};
 
 	const eliminarInstitucion = (index: number | null) => {
@@ -215,7 +270,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 	const handleInstChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setName(e.currentTarget.value);
 
-		const selectedInstitution = arraySearchInstitucion.find(
+		/*const selectedInstitution = arraySearchInstitucion.find(
 			(inst) => inst.nom === e.currentTarget.value,
 		);
 
@@ -238,7 +293,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 				});
 				setName('');
 			}
-		}
+		}*/
 	};
 
 	const isUrlValid = (url: string) => {
@@ -268,13 +323,24 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 	};
 
 
+	const isValidCoordinates = (coord: string) => {
+
+		const regex = /^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$/;
+	    if(!regex.test(coord)){
+			return false;
+		}
+
+		const [lat, lng] = coord.split(',').map(Number);
+		return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+	}
+
 
 	return (
 			<>
-				<p>
+				{/* <p>
 					Ubicación se refiere al punto del mapa en donde se encuentre el lugar de la actividad.
 					Utilice la herramienta de Google Maps para copiar las coordenadas o escriba la direccion.
-				</p>
+				</p> 
 				<p>
 					Si necesita ayuda para compartir el enlace, consulte el siguiente{' '}
 					<span
@@ -286,30 +352,35 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 					</span>
 					.
 				</p>
+				*/}
 				<Form onSubmit={submitForm} className="w-100 p-3 border rounded bg-light">
 						{/* Nombre de la institución */}
 						<Row className="mb-3">
 							<Col md={12}>
-								<Form.Group controlId="name">
+								<Form.Group controlId="institucion">
 									<Form.Label><strong>Nombre de la Institución / Establecimiento</strong></Form.Label>
 									<Form.Control
 										type='text'
-										name='name'
+										name='institucion'
 										value={name}
-										placeholder='Ej: Escuela Rural N° 4 o Campo San José'
+										placeholder='Nombre de la institución'
 										onChange={handleInstChange}
-										list='listSearchInstituciones'
+										//list='listSearchInstituciones'
 
 									/>
 
-									<datalist id='listSearchInstituciones'>
+									{/*<datalist id='listSearchInstituciones'>
 										{arraySearchInstitucion?.map((inst, i) => (
 											<option key={i} value={inst.nom ?? '#'}>
 												{inst.nom}
 											</option>
 										))}
 									</datalist>
+
+
+									*/}
 								</Form.Group>
+								
 							</Col>
 						</Row>
 
@@ -402,8 +473,8 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 										/>
 									</Form.Group>
 								</Col>
-								<Col md={4}>
-									<div> Para obtener las coordenadas, dirijase a google maps, encuentre la ubicación y haga click derecho para copiar las coordenadas.</div>
+								<Col md={8}>
+									<div> Para obtener las coordenadas de un punto específico, dirígete a Google Maps y busca la ubicación exacta que necesitas. Una vez encontrada, haz clic derecho directamente sobre el punto deseado en el mapa para desplegar el menú de opciones. En la primera línea de este menú verás los números de latitud y longitud; simplemente haz clic sobre ellos para copiarlos automáticamente en tu portapapeles. Luego pega los valores en el campo.</div>
 								</Col>
 							</Row>
 						)}
@@ -411,6 +482,9 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 						{/* Botón de envío */}
 						<Row className="mt-4">
 							<Col md={12}>
+
+							{!guardando && (
+
 								<Button
 									variant='success'
 									type='submit'
@@ -423,6 +497,13 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 								>
 									Guardar Institución
 								</Button>
+
+							)}
+							{guardando && (
+								<Button variant='success' type='button' className='w-100 py-2 fw-bold' disabled>
+									Guardando...
+								</Button>
+							)}
 							</Col>
 						</Row>
 					</Form>
@@ -433,7 +514,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 								<tr>
 									<th>#</th>
 									<th>Nombre</th>
-									<th>Ubicacion</th>
+									<th>Ubicación</th>
 									<th>Coordenadas</th>
 									<th></th>
 								</tr>
@@ -459,8 +540,24 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 												whiteSpace: 'nowrap',
 											}}
 										>
-											{isUrlValid(item.ubicacion) && <a href={item.ubicacion}>{item.ubicacion}</a>}
-											{item?.pais && <span>{item.direccion}, {item.ciudad}, {item.provincia}, {item.pais}</span>}
+											
+											{item.latitud && item.longitud ? (
+												<a
+												href={`https://www.google.com/maps?q=${item.latitud},${item.longitud}`}
+												target="_blank"
+												rel="noopener noreferrer"
+												>
+												{item.pais ? `${item.direccion}, ${item.ciudad}` : 'Ver en Google Maps'}
+											</a>
+											) : (
+												<a
+												href={item.ubicacion}
+												target="_blank"
+												rel="noopener noreferrer"
+												>
+												{item.ubicacion}	
+												</a>
+											)}
 										</td>
 										<td
 											style={{

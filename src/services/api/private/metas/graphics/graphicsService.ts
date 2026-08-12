@@ -69,3 +69,26 @@ export const getGraphicsDataGantt = async (anio?: number): Promise<GraphicsRespo
 		}
 	}
 }
+
+
+export const getInstituciones = async (): Promise<GraphicsResponse> => {
+	try {
+		const response = await privateAxiosInstance.get<GraphicsResponse>(
+			`${basePath}/instituciones`,
+		);
+
+		console.log('Response from getInstituciones:', response.data); // Log the response data
+		return response.data;
+	} catch (error) {
+		if (
+			axios.isAxiosError(error) &&
+			error.response &&
+			error.response.data &&
+			error.response.data.error
+		) {
+			throw new Error(error.response.data.error);
+		} else {
+			throw new Error('An unexpected error occurred');
+		}
+	}
+}

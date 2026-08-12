@@ -136,9 +136,9 @@ const DataRender = ({ objectData, spanishTitles }: Props) => {
 							<span>Instituciones</span>
 						</p>
 						<ul>
-							{data.map(({ idInstitucion, nom, ubicacion }: any) => (
+							{data.map(({ idInstitucion, nom, ubicacion,latitud,longitud }: any) => (
 								<li key={`institucion-${idInstitucion}`}>
-									<a href={ubicacion} target='_blank' rel='noopener noreferrer'>
+									<a href={latitud?`https://www.google.com/maps?q=${latitud},${longitud}`:ubicacion} target='_blank' rel='noopener noreferrer'>
 										{nom}
 									</a>
 								</li>
