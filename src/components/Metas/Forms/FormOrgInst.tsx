@@ -21,10 +21,12 @@ interface LocationData {
 
 const handleSearch = async ({street,city,state,country},tries = 0) => {
 
-	const query = [street, city, state, country].filter(Boolean).join(', ');
 
-    const params = new URLSearchParams({
-        q: query, // Usamos 'q' en lugar de 'street', 'city', etc.
+   	const params = new URLSearchParams({
+        street: street,
+        city: city,
+        state: state,
+        country: country,
         format: 'json',
         addressdetails: '1',
         limit: '1',
@@ -68,7 +70,7 @@ const handleSearch = async ({street,city,state,country},tries = 0) => {
 	  console.error('Error al buscar dirección:', err);
 	  if(tries < 3){
 
-		await new Promise((resolve) => setTimeout(resolve, 1000)); // frenamos la ejecucion por 1 segundo antes de reintentar
+		await new Promise((resolve) => setTimeout(resolve, 2000)); // frenamos la ejecucion por 2 segundos antes de reintentar
 
       	return await handleSearch({ street, city, state, country }, tries + 1);
 
@@ -414,7 +416,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 											<Form.Label>Dirección (Calle y número)</Form.Label>
 											<Form.Control
 												type='text'
-												placeholder='Ej: San Martín 1234'
+												placeholder='Ej: San Martín 3234'
 												value={direccion}
 												onChange={(e) => setDireccion(e.target.value)}
 											/>
@@ -425,7 +427,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 											<Form.Label>Ciudad / Localidad</Form.Label>
 											<Form.Control
 												type='text'
-												placeholder='Ej: Rosario'
+												placeholder='Ej: Santa Fe'
 												value={ciudad}
 												onChange={(e) => setCiudad(e.target.value)}
 											/>
@@ -547,7 +549,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 												target="_blank"
 												rel="noopener noreferrer"
 												>
-												{item.pais ? `${item.direccion}, ${item.ciudad}` : 'Ver en Google Maps'}
+												{item.pais ? `${item.direccion}, ${item.ciudad},${item.provincia}` : 'Ver en Google Maps'}
 											</a>
 											) : (
 												<a
