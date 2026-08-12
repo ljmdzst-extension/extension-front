@@ -71,7 +71,7 @@ export const getGraphicsDataGantt = async (anio?: number): Promise<GraphicsRespo
 }
 
 
-export const getInstituciones = async (): Promise<GraphicsResponse> => {
+export const getInstitucionesParaMapa = async (): Promise<GraphicsResponse> => {
 	try {
 		const response = await privateAxiosInstance.get<GraphicsResponse>(
 			`${basePath}/instituciones`,

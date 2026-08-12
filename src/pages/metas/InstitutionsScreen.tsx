@@ -3,7 +3,7 @@ import { ArrowBack } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import MostradorMapaInstituciones, { InstitucionPunto } from './MapaBuscadorEstructurado';
-import { getInstituciones } from '@/services/api/private/metas/graphics/graphicsService';
+import { getInstitucionesParaMapa } from '@/services/api/private/metas/graphics/graphicsService';
 
 
 
@@ -20,7 +20,7 @@ const InstitutionsScreen = () => {
   useEffect(() => {
     const fetchInstituciones = async () => {
   
-     getInstituciones()
+     getInstitucionesParaMapa()
         .then((data) => {
           if (data.data && Array.isArray(data.data)) {
             setInstituciones(data.data);
