@@ -11,8 +11,6 @@ const InstitutionsScreen = () => {
   
   
   const navigation = useNavigate();
-  const availableYears = [2023, 2024,2025,2026];
-  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
   const [instituciones, setInstituciones] = useState<InstitucionPunto[]>([]);
 
@@ -33,7 +31,7 @@ const InstitutionsScreen = () => {
     };
 
     fetchInstituciones();
-  }, [selectedYear]);
+  }, []);
 
   return (
     <div className='container my-3'>
@@ -50,24 +48,7 @@ const InstitutionsScreen = () => {
                 }}
             />
         </div>
-      <div className='w-100'>
-        <div>
-          <label htmlFor="year-select" style={{ marginRight: '8px', fontWeight: 'bold' }}>
-            Seleccionar Año:
-          </label>
-          <select
-            id="year-select"
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(Number(e.target.value))}
-          >
-            {availableYears.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-        </div>
-
+      <div className='w-100'>          
         <MostradorMapaInstituciones instituciones={instituciones} />
       </div>
     </div>

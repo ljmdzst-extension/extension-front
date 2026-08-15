@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import LoadingSpinner from '@/components/Common/Spinner/LoadingSpinner';
+import UbicacionActividadScreen from '@/pages/metas/UbicacionActividadScreen';
 
 const Layout = lazy(() => import('@/components/Layout/Layout'));
 const PrivateLayout = lazy(() => import('@/components/Layout/PrivateLayout'));
@@ -47,6 +48,7 @@ const RootNavigation = () => {
 					<Route path='metas' element={<MainScreen />} />
 					<Route path='gantt' element={<GanttScreen />} />
 					<Route path='instituciones' element={<InstitutionsScreen />} />
+					<Route path='ubicaciones' element={<UbicacionActividadScreen />} />
 					<Route path='metas/graficas' element={<GraphicsScreen />} />
 					<Route path='metas/:idPrograma/:idArea' element={<ActivityScreen />} />
 					<Route path='metas/:idPrograma/:idArea/resumen' element={<ResumenAreaScreen />} />

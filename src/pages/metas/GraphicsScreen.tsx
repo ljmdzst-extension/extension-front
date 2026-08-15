@@ -81,6 +81,16 @@ const GraphicsScreen = () => {
 					Ver instituciones
 			</Button>
 
+			<Button
+					variant='secondary'
+					className='m-2 rounded cursor-pointer'
+					onClick={() => {
+						navigation('/gestion/ubicaciones');
+					}}
+				>
+					Ver Ubicaciones de actividades por año
+			</Button>
+
 
 			<div className='d-flex justify-content-center align-items-center m-2'>
 				<YearSelector year={year} onYearChange={handleYearChange} />

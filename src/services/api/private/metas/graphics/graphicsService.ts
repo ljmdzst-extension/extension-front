@@ -92,3 +92,26 @@ export const getInstitucionesParaMapa = async (): Promise<GraphicsResponse> => {
 		}
 	}
 }
+
+
+export const getUbicacionActividadParaMapa = async (anio?: number): Promise<GraphicsResponse> => {
+	try {
+		const response = await privateAxiosInstance.get<GraphicsResponse>(
+			`${basePath}/ubicaciones/${anio}`,
+		);
+		console.log('Response from getUbicacionActividadParaMapa:', response.data); // Log the response data
+		return response.data;
+	}
+	catch (error) {
+		if (
+			axios.isAxiosError(error) &&
+			error.response &&
+			error.response.data &&
+			error.response.data.error
+		) {
+			throw new Error(error.response.data.error);
+		} else {
+			throw new Error('An unexpected error occurred');
+		}
+	}
+}
