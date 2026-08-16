@@ -95,6 +95,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 	const [ubicacion, setUbicacion] = useState('');
 	const [coordenadas, setCoordenadas] = useState('');
 	const [guardando, setGuardando] = useState(false);
+	const [crearInstitucion, setCrearInstitucion] = useState(false);
 
 	const [modoUbicacion, setModoUbicacion] = useState('direccion');
 
@@ -238,6 +239,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 		setCoordenadas('');
 		setUbicacion('');
 		setGuardando(false);
+		setCrearInstitucion(false);
 	};
 
 	const eliminarInstitucion = (index: number | null) => {
@@ -339,14 +341,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 
 	return (
 			
-			<div 
-        	style={{ 
-            	maxHeight: 'calc(100vh - 200px)', // Ajustá los px según el alto de tu footer
-            	overflowY: 'auto',                // Activa el scroll vertical solo si es necesario
-            	overflowX: 'hidden'               // Evita scroll horizontal innecesario
-        	}}
-        	className="pe-2"                      // Padding a la derecha para que el scroll no tape el contenido
-    	>
+			<>
 				{/* <p>
 					Ubicación se refiere al punto del mapa en donde se encuentre el lugar de la actividad.
 					Utilice la herramienta de Google Maps para copiar las coordenadas o escriba la direccion.
@@ -363,6 +358,16 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 					.
 				</p>
 				*/}
+
+				<Button
+					variant="primary mb-3"
+
+					onClick={() => setCrearInstitucion(!crearInstitucion)}
+				>
+					{crearInstitucion ? 'Cancelar' : 'Crear Institución'}
+				</Button>
+
+				{crearInstitucion && (
 				<Form onSubmit={submitForm} className="w-100 p-3 border rounded bg-light">
 						{/* Nombre de la institución */}
 						<Row className="mb-3">
@@ -516,8 +521,13 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 							)}
 							</Col>
 						</Row>
-					</Form>
+				</Form>
+
+				)}
+
+				{!crearInstitucion && (
 				<>
+                	<h3 className='mb-3'>Lista de Instituciones</h3>
 					<div style={{ maxHeight: '250px', overflowY: 'auto' }}>
 						<Table striped bordered hover>
 							<thead>
@@ -589,7 +599,8 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 						</Table>
 					</div>
 				</>
-			</div>
+				)}
+			</>
 
 
 	);

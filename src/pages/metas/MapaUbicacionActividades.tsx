@@ -2,178 +2,164 @@ import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { Ubicacione } from '@/types/ActivityProps';
 
-// Fix de íconos predeterminados de Leaflet
+// Fix de íconos predeterminados de Leaflet para Webpack / Next.js / Vite
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconUrl: markerIcon,
-  iconRetinaUrl: markerIcon2x,
-  shadowUrl: markerShadow,
+    iconUrl: markerIcon,
+    iconRetinaUrl: markerIcon2x,
+    shadowUrl: markerShadow,
 });
 
-// Estructura de la institución o zona
-export interface UbicacionPunto {
-  idInstitucion?: number;
-  nom: string;
-  direccion?: string;
-  ciudad?: string;
-  provincia?: string;
-  latitud?: string | number;
-  longitud?: string | number;
-  radio?: number; // Radio en metros (solo para círculos)
-}
+// Extendemos Ubicacione para permitir 'nom' o 'desc' indistintamente
+export type UbicacionMapaItem = Ubicacione & {
+    nom?: string;
+};
 
 interface Props {
-  ubicaciones: UbicacionPunto[];
-  height?: string;
+    ubicaciones: UbicacionMapaItem[];
+    height?: string;
 }
 
 const DEFAULT_CENTER: [number, number] = [-31.6333, -60.7000]; // Santa Fe, Argentina
 
-// Componente para reajustar el zoom y centrado automáticamente
+// Componente para reajustar el zoom y centrado automáticamente según los puntos
 const AutoFitBounds: React.FC<{ points: [number, number][] }> = ({ points }) => {
-  const map = useMap();
+    const map = useMap();
 
-  useEffect(() => {
-    if (points.length > 0) {
-      const bounds = L.latLngBounds(points);
-      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
-    }
-  }, [points, map]);
+    useEffect(() => {
+        if (points.length > 0) {
+            const bounds = L.latLngBounds(points);
+            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
+        }
+    }, [points, map]);
 
-  return null;
+    return null;
 };
 
 export const MapaUbicacionActividades: React.FC<Props> = ({
-  ubicaciones,
-  height = '450px',
+    ubicaciones,
+    height = '380px',
 }) => {
-  // Filtrar y parsear los elementos que poseen coordenadas válidas
-  const elementosValidos = ubicaciones
-    .map((inst) => {
-      const lat = typeof inst.latitud === 'string' ? parseFloat(inst.latitud) : inst.latitud;
-      const lng = typeof inst.longitud === 'string' ? parseFloat(inst.longitud) : inst.longitud;
+    // Parsear y filtrar elementos con coordenadas válidas (latitud y longitud)
+    const elementosValidos = ubicaciones
+        .map((item) => {
+            const lat = typeof item.latitud === 'string' ? parseFloat(item.latitud) : item.latitud;
+            const lng = typeof item.longitud === 'string' ? parseFloat(item.longitud) : item.longitud;
 
-      if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
-        return { ...inst, lat, lng };
-      }
-      return null;
-    })
-    .filter((inst): inst is UbicacionPunto & { lat: number; lng: number } => inst !== null);
+            if (lat !== undefined && lng !== undefined && !isNaN(lat) && !isNaN(lng)) {
+                return { ...item, lat, lng };
+            }
+            return null;
+        })
+        .filter((item): item is UbicacionMapaItem & { lat: number; lng: number } => item !== null);
 
-  const coordsList: [number, number][] = elementosValidos.map((p) => [p.lat, p.lng]);
+    const coordsList: [number, number][] = elementosValidos.map((p) => [p.lat, p.lng]);
+    const initialCenter: [number, number] = coordsList.length > 0 ? coordsList[0] : DEFAULT_CENTER;
 
-  const initialCenter: [number, number] =
-    coordsList.length > 0 ? coordsList[0] : DEFAULT_CENTER;
+    if (elementosValidos.length === 0) {
+        return (
+            <div
+                style={{ height }}
+                className="d-flex align-items-center justify-content-center bg-light border rounded text-muted"
+            >
+                <span>No hay ubicaciones georreferenciadas para mostrar en el mapa.</span>
+            </div>
+        );
+    }
 
-  return (
-    <div
-      style={{ height, width: '100%', position: 'relative' }}
-      className="rounded-lg overflow-hidden border border-gray-300 shadow-sm"
-    >
-      <MapContainer
-        center={initialCenter}
-        zoom={13}
-        scrollWheelZoom={true}
-        style={{ height: '100%', width: '100%' }}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+    return (
+        <div
+            style={{ height, width: '100%', position: 'relative' }}
+            className="rounded overflow-hidden border border-secondary-subtle shadow-sm my-3"
+        >
+            <MapContainer
+                center={initialCenter}
+                zoom={13}
+                scrollWheelZoom={true}
+                style={{ height: '100%', width: '100%' }}
+            >
+                <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
 
-        {/* Ajusta automáticamente la vista del mapa */}
-        <AutoFitBounds points={coordsList} />
+                {/* Encuadre automático */}
+                <AutoFitBounds points={coordsList} />
 
-        {/* Renderizado condicional: Círculo o Marcador según el tipo */}
-        {elementosValidos.map((item, index) => {
-          const key = item.idInstitucion || `${item.nom}-${index}`;
-          const esCirculo =
-            item.radio != 0 && item.radio != null;
+                {elementosValidos.map((item, index) => {
+                    const key = item.idUbicacion || `${item.desc || item.nom}-${index}`;
+                    const radioMetros = Number(item.radio) || 0;
+                    const esCirculo = radioMetros > 0;
+                    const nombreLugar = item.desc || item.nom || 'Ubicación sin nombre';
 
-          return (
-            <React.Fragment key={key}>
-              {esCirculo ? (
-                /* MOSTRAR ZONA CIRCULAR */
-                <Circle
-                  center={[item.lat, item.lng]}
-                  radius={item.radio || 500} // Valor por defecto 500m si no viene radio
-                  pathOptions={{
-                    color: '#2563eb',       // Borde azul
-                    fillColor: '#60a5fa',   // Relleno azul claro
-                    fillOpacity: 0.3,       // Transparencia del relleno
-                    weight: 2,
-                  }}
-                >
-                  <Popup>
-                    <div className="text-sm">
-                      <strong className="text-blue-600">{item.nom}</strong>
-                      <div>
-                        <small className="text-gray-600">
-                          Zona de Cobertura: {item.radio ? `${item.radio}m` : '500m'}
-                        </small>
-                      </div>
-                      {item.direccion && (
-                        <div>
-                          <small>{item.direccion}</small>
-                        </div>
-                      )}
-                      {(item.ciudad || item.provincia) && (
-                        <div className="text-xs text-gray-500">
-                          {[item.ciudad, item.provincia].filter(Boolean).join(', ')}
-                        </div>
-                      )}
-                      <hr className="my-1" />
-                      <a
-                        href={`https://www.google.com/maps?q=${item.lat},${item.lng}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-blue-500 underline"
-                      >
-                        Abrir centro en Google Maps
-                      </a>
-                    </div>
-                  </Popup>
-                </Circle>
-              ) : (
-                /* MOSTRAR MARCADOR PUNTO */
-                <Marker position={[item.lat, item.lng]}>
-                  <Popup>
-                    <div className="text-sm">
-                      <strong className="text-blue-600">{item.nom}</strong>
-                      {item.direccion && (
-                        <div>
-                          <small>{item.direccion}</small>
-                        </div>
-                      )}
-                      {(item.ciudad || item.provincia) && (
-                        <div className="text-xs text-gray-500">
-                          {[item.ciudad, item.provincia].filter(Boolean).join(', ')}
-                        </div>
-                      )}
-                      <hr className="my-1" />
-                      <a
-                        href={`https://www.google.com/maps?q=${item.lat},${item.lng}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-blue-500 underline"
-                      >
-                        Abrir en Google Maps
-                      </a>
-                    </div>
-                  </Popup>
-                </Marker>
-              )}
-            </React.Fragment>
-          );
-        })}
-      </MapContainer>
-    </div>
-  );
+                    return (
+                        <React.Fragment key={key}>
+                            {/* DIBUJAR CIRCUNFERENCIA SI RADIO > 0 */}
+                            {esCirculo && (
+                                <Circle
+                                    center={[item.lat, item.lng]}
+                                    radius={radioMetros}
+                                    pathOptions={{
+                                        color: '#0d6efd',       // Azul Bootstrap
+                                        fillColor: '#0d6efd',
+                                        fillOpacity: 0.25,
+                                        weight: 2,
+                                        dashArray: '4, 4',       // Borde punteado para distinguir áreas
+                                    }}
+                                />
+                            )}
+
+                            {/* MARCADOR DEL PUNTO CENTRAL */}
+                            <Marker position={[item.lat, item.lng]}>
+                                <Popup>
+                                    <div className="p-1 style-popup">
+                                        <strong className="text-primary d-block mb-1">{nombreLugar}</strong>
+
+                                        {esCirculo ? (
+                                            <span className="badge bg-info text-dark mb-2">
+                                                Radio de cobertura: {radioMetros} m
+                                            </span>
+                                        ) : (
+                                            <span className="badge bg-secondary mb-2">Punto Exacto</span>
+                                        )}
+
+                                        {item.direccion && (
+                                            <div className="small text-secondary">
+                                                {item.direccion}
+                                            </div>
+                                        )}
+
+                                        {(item.ciudad || item.provincia) && (
+                                            <div className="small text-muted">
+                                                {[item.ciudad, item.provincia, item.pais].filter(Boolean).join(', ')}
+                                            </div>
+                                        )}
+
+                                        <hr className="my-2" />
+
+                                        <a
+                                            href={item.enlace || `https://www.google.com/maps?q=${item.lat},${item.lng}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="btn btn-sm btn-outline-primary w-100 mt-1"
+                                        >
+                                            Ver en Google Maps
+                                        </a>
+                                    </div>
+                                </Popup>
+                            </Marker>
+                        </React.Fragment>
+                    );
+                })}
+            </MapContainer>
+        </div>
+    );
 };
 
 export default MapaUbicacionActividades;

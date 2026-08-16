@@ -3,163 +3,574 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Swal from 'sweetalert2';
-import { FormControl, ListGroup } from 'react-bootstrap';
+import { Row, Col, ToggleButtonGroup, ToggleButton, Table } from 'react-bootstrap';
 import { ContentCopy, Edit, Delete, Save } from '@mui/icons-material';
 import { textLimitError } from '@/utils/validacionesForms';
 import { Actividad, Ubicacione } from '@/types/ActivityProps';
 
 interface Props {
-	activity: Actividad;
-	saveData: (data: Partial<Actividad>) => void;
+    activity: Actividad;
+    saveData: (data: Partial<Actividad>) => void;
 }
 
-// Función auxiliar para validar URLs
-const isUrlValid = (url: string): boolean => /^(ftp|http|https):\/\/[^ "]+$/.test(url);
+interface LocationSearchParams {
+    street: string;
+    city: string;
+    state: string;
+    country: string;
+}
+
+// Función auxiliar para buscar coordenadas en OpenStreetMap Nominatim
+const handleSearch = async ({ street, city, state, country }: LocationSearchParams, tries = 0) => {
+    const params = new URLSearchParams({
+        street,
+        city,
+        state,
+        country,
+        format: 'json',
+        addressdetails: '1',
+        limit: '1',
+    });
+
+    try {
+        console.log('Buscando dirección en OpenStreetMap:', params.toString());
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?${params.toString()}`,
+            {
+                headers: {
+                    'User-Agent': 'MiAplicacionActividades/1.0',
+                },
+            }
+        );
+
+        const data = await response.json();
+
+        if (data && data.length > 0) {
+            const result = data[0];
+            return {
+                lat: parseFloat(result.lat),
+                lng: parseFloat(result.lon),
+                displayName: result.display_name,
+            };
+        } else {
+            console.log('No se encontraron resultados para la dirección ingresada.');
+            return undefined;
+        }
+    } catch (err) {
+        console.error('Error al buscar dirección:', err);
+        if (tries < 3) {
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+            return await handleSearch({ street, city, state, country }, tries + 1);
+        }
+        return undefined;
+    }
+};
+
+// Función de validación de coordenadas (Latitud, Longitud)
+const isValidCoordinates = (coord: string) => {
+    const regex = /^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$/;
+    if (!regex.test(coord)) return false;
+
+    const [lat, lng] = coord.split(',').map(Number);
+    return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+};
 
 // Copiar texto al portapapeles
 const copyToClipboard = (text: string) => navigator.clipboard.writeText(text);
 
-// Componente UbicacionesList para lista de ubicaciones
+// Componente UbicacionesList para renderizar la tabla de ubicaciones
 const UbicacionesList = ({
-	ubicaciones,
-	eliminarUbicacion,
+    ubicaciones,
+    eliminarUbicacion,
 }: {
-	ubicaciones: Ubicacione[];
-	eliminarUbicacion: (index: number) => void;
+    ubicaciones: Ubicacione[];
+    eliminarUbicacion: (index: number) => void;
 }) => (
-	<ListGroup
-		className='custom-scrollbar mt-2'
-		style={{ height: '150px', maxHeight: '150px', overflowY: 'auto' }}
-	>
-		{ubicaciones.map((ubicacion, index) => (
-			<ListGroup.Item key={index} className='w-75 align-self-center' variant='secondary'>
-				<div className='d-flex justify-content-between'>
-					<a
-						href={ubicacion.enlace ?? ''}
-						target='_blank'
-						rel='noopener noreferrer'
-						style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-					>
-						{ubicacion.desc ?? ''}
-					</a>
-					<div className='d-flex'>
-						<ContentCopy
-							className='cursor-pointer mx-1'
-							onClick={() => copyToClipboard(ubicacion.enlace ?? '')}
-						/>
-						<Delete
-							onClick={() => eliminarUbicacion(index)}
-							style={{
-								borderRadius: '20%',
-								backgroundColor: 'red',
-								color: 'white',
-								cursor: 'pointer',
-							}}
-						/>
-					</div>
-				</div>
-			</ListGroup.Item>
-		))}
-	</ListGroup>
+    <div style={{ maxHeight: '220px', overflowY: 'auto' }} className='mt-3 custom-scrollbar'>
+        <Table striped bordered hover responsive size='sm'>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Descripción</th>
+                    <th>Tipo / Radio</th>
+                    <th>Coordenadas / Mapa</th>
+                    <th style={{ width: '60px' }}>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {ubicaciones.length === 0 ? (
+                    <tr>
+                        <td colSpan={5} className='text-center text-muted py-3'>
+                            No hay ubicaciones registradas para esta actividad.
+                        </td>
+                    </tr>
+                ) : (
+                    ubicaciones.map((item, index) => {
+                        const hasCoords =
+                            item.latitud !== undefined &&
+                            item.longitud !== undefined &&
+                            item.latitud !== null &&
+                            item.longitud !== null;
+
+                        const mapUrl =
+                            item.enlace ||
+                            (hasCoords
+                                ? `https://www.google.com/maps?q=${item.latitud},${item.longitud}`
+                                : '#');
+
+                        const radioVal = Number(item.radio) || 0;
+
+                        return (
+                            <tr key={index}>
+                                <td>{index + 1}</td>
+                                <td>{item.desc || 'Sin descripción'}</td>
+                                <td>
+                                    {radioVal > 0 ? (
+                                        <span className='badge bg-info text-dark'>
+                                            Circunferencia ({radioVal} m)
+                                        </span>
+                                    ) : (
+                                        <span className='badge bg-secondary'>Punto exacto</span>
+                                    )}
+                                </td>
+                                <td>
+                                    {mapUrl !== '#' ? (
+                                        <a href={mapUrl} target='_blank' rel='noopener noreferrer'>
+                                            {hasCoords ? `${item.latitud}, ${item.longitud}` : 'Ver en Mapa'}
+                                        </a>
+                                    ) : (
+                                        <span className='text-muted'>Sin coordenadas</span>
+                                    )}
+                                </td>
+                                <td>
+                                    <div className='d-flex align-items-center gap-2'>
+                                        {mapUrl !== '#' && (
+                                            <ContentCopy
+                                                className='cursor-pointer text-primary'
+                                                style={{ fontSize: 18, cursor: 'pointer' }}
+                                                onClick={() => copyToClipboard(mapUrl)}
+                                                titleAccess='Copiar enlace del mapa'
+                                            />
+                                        )}
+                                        <Delete
+                                            onClick={() => eliminarUbicacion(index)}
+                                            style={{
+                                                borderRadius: '20%',
+                                                backgroundColor: 'red',
+                                                color: 'white',
+                                                cursor: 'pointer',
+                                                fontSize: 20,
+                                            }}
+                                            titleAccess='Eliminar ubicación'
+                                        />
+                                    </div>
+                                </td>
+                            </tr>
+                        );
+                    })
+                )}
+            </tbody>
+        </Table>
+    </div>
 );
 
 const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
-	const [editandoDescripcion, setEditandoDescripcion] = useState(false);
-	const [descripcion, setDescripcion] = useState<string>(activity.desc ?? '');
-	const [ubicaciones, setUbicaciones] = useState<Ubicacione[]>(activity.listaUbicaciones ?? []);
-	const [ubicacion, setUbicacion] = useState<string>('');
-	const [ubicacionDescripcion, setUbicacionDescripcion] = useState<string>('');
+    // Estado de la descripción general de la actividad
+    const [editandoDescripcion, setEditandoDescripcion] = useState(false);
+    const [descripcion, setDescripcion] = useState<string>(activity.desc ?? '');
 
-	useEffect(() => {
-		if (!editandoDescripcion) {
-			saveData({ desc: descripcion, listaUbicaciones: ubicaciones });
-		}
-	}, [editandoDescripcion, descripcion, ubicaciones]);
+    // Lista de ubicaciones
+    const [ubicaciones, setUbicaciones] = useState<Ubicacione[]>(activity.listaUbicaciones ?? []);
 
-	const handleEditDescripcionToggle = () => {
-		if (editandoDescripcion && textLimitError(descripcion, 2000)) return;
-		setEditandoDescripcion(!editandoDescripcion);
-	};
+    // Campos del formulario de alta de ubicación
+    const [ubicacionDescripcion, setUbicacionDescripcion] = useState<string>('');
+    const [modoUbicacion, setModoUbicacion] = useState<'direccion' | 'coordenadas'>('direccion');
+    const [tipoForma, setTipoForma] = useState<'punto' | 'circunferencia'>('punto');
+    const [radio, setRadio] = useState<string>('0');
+    const [crearUbicacion, setCrearUbicacion] = useState<boolean>(false);
 
-	const agregarUbicacion = useCallback(() => {
-		if (ubicacion.trim() && ubicacionDescripcion.trim() && isUrlValid(ubicacion)) {
-			setUbicaciones((prev) => [
-				...prev,
-				{ idUbicacion: 0, desc: ubicacionDescripcion, enlace: ubicacion },
-			]);
-			setUbicacion('');
-			setUbicacionDescripcion('');
-		}
-	}, [ubicacion, ubicacionDescripcion]);
+    // Campos modo dirección
+    const [direccion, setDireccion] = useState<string>('');
+    const [ciudad, setCiudad] = useState<string>('Santa Fe');
+    const [provincia, setProvincia] = useState<string>('Santa Fe');
+    const [pais, setPais] = useState<string>('Argentina');
 
-	const eliminarUbicacion = useCallback((index: number) => {
-		setUbicaciones((prev) => prev.filter((_, i) => i !== index));
-	}, []);
+    // Campos modo coordenadas
+    const [coordenadas, setCoordenadas] = useState<string>('');
 
-	// Mostrar la alerta con información sobre cómo obtener el enlace de ubicación
-	const mostrarAlertaUbicaciones = useCallback(() => {
-		Swal.fire({
-			title: 'Ubicaciones',
-			html: `<p>Utilice Google Maps para insertar el enlace de la ubicación de la actividad. Consulte este video si necesita ayuda.</p>
-					<iframe width="600" height="355" src="https://www.youtube.com/embed/KoN9aRs6a4E" title="YouTube video player" allow="fullscreen;" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>`,
-			confirmButtonText: 'Cerrar',
-			width: '80%',
-		});
-	}, []);
+    // Estado de carga para la geocodificación
+    const [buscando, setBuscando] = useState<boolean>(false);
 
-	return (
-		<>
-			<div>
-				<h5> Descripción: </h5>
-				<InputGroup className='mb-4 gap-1'>
-					<Form.Control
-						as='textarea'
-						rows={3}
-						style={{ resize: 'none' }}
-						className='custom-scrollbar'
-						aria-label='Inserte descripción'
-						disabled={!editandoDescripcion}
-						value={descripcion}
-						onChange={(e) => setDescripcion(e.target.value)}
-						isInvalid={textLimitError(descripcion, 2000)}
-					/>
-					<Form.Control.Feedback type='invalid' tooltip>
-						Máximo 2000 caracteres
-					</Form.Control.Feedback>
-					<Button variant='secondary' onClick={handleEditDescripcionToggle}>
-						{editandoDescripcion ? <Save /> : <Edit />}
-					</Button>
-				</InputGroup>
-			</div>
-			<div className='d-flex justify-content-between mb-2'>
-				<h5>Ubicación:</h5>
-				<Button variant='info' size='sm' onClick={mostrarAlertaUbicaciones}>
-					¿Cómo buscar link de ubicación?
-				</Button>
-			</div>
-			<InputGroup className='gap-1'>
-				<FormControl
-					placeholder='Descripción de la ubicación'
-					value={ubicacionDescripcion}
-					onChange={(e) => setUbicacionDescripcion(e.target.value)}
-				/>
-				<FormControl
-					placeholder='Inserte link de ubicación'
-					value={ubicacion}
-					onChange={(e) => setUbicacion(e.target.value)}
-					isInvalid={!!ubicacion && !isUrlValid(ubicacion)}
-				/>
-				<Button
-					variant='success'
-					onClick={agregarUbicacion}
-					disabled={!ubicacion || !ubicacionDescripcion || !isUrlValid(ubicacion)}
-				>
-					Agregar Ubicación
-				</Button>
-			</InputGroup>
-			<UbicacionesList ubicaciones={ubicaciones} eliminarUbicacion={eliminarUbicacion} />
-		</>
-	);
+    // Efecto para sincronizar con la actividad padre
+    useEffect(() => {
+        if (!editandoDescripcion) {
+            saveData({ desc: descripcion, listaUbicaciones: ubicaciones });
+        }
+    }, [editandoDescripcion, descripcion, ubicaciones]);
+
+    const handleEditDescripcionToggle = () => {
+        if (editandoDescripcion && textLimitError(descripcion, 2000)) return;
+        setEditandoDescripcion(!editandoDescripcion);
+    };
+
+    const resetFormUbicacion = () => {
+        setUbicacionDescripcion('');
+        setDireccion('');
+        setCiudad('Santa Fe');
+        setProvincia('Santa Fe');
+        setPais('Argentina');
+        setCoordenadas('');
+        setRadio('0');
+        setTipoForma('punto');
+    };
+
+    // Función para agregar la nueva ubicación
+    const agregarUbicacion = async () => {
+        if (!ubicacionDescripcion.trim()) {
+            Swal.fire({
+                title: 'Error',
+                text: 'Debe ingresar una descripción para la ubicación.',
+                icon: 'error',
+                confirmButtonText: 'Cerrar',
+            });
+            return;
+        }
+
+        const radioValue = tipoForma === 'circunferencia' ? parseFloat(radio) : 0;
+        if (tipoForma === 'circunferencia' && (isNaN(radioValue) || radioValue <= 0)) {
+            Swal.fire({
+                title: 'Error',
+                text: 'Para una circunferencia, debe ingresar un radio válido mayor a 0 metros.',
+                icon: 'error',
+                confirmButtonText: 'Cerrar',
+            });
+            return;
+        }
+
+        setBuscando(true);
+
+        let finalLat: number | undefined = undefined;
+        let finalLng: number | undefined = undefined;
+        let finalEnlace = '';
+
+        if (modoUbicacion === 'direccion') {
+            if (!direccion.trim() || !ciudad.trim() || !provincia.trim() || !pais.trim()) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Complete todos los campos de la dirección postal.',
+                    icon: 'error',
+                    confirmButtonText: 'Cerrar',
+                });
+                setBuscando(false);
+                return;
+            }
+
+            const result = await handleSearch({
+                street: direccion,
+                city: ciudad,
+                state: provincia,
+                country: pais,
+            });
+
+            if (result) {
+                finalLat = result.lat;
+                finalLng = result.lng;
+                finalEnlace = `https://www.google.com/maps?q=${finalLat},${finalLng}`;
+            } else {
+                Swal.fire({
+                    title: 'Error de ubicación',
+                    text: 'No se encontraron coordenadas para la dirección ingresada. Verifique la dirección o ingrese coordenadas manualmente.',
+                    icon: 'error',
+                    confirmButtonText: 'Cerrar',
+                });
+                setBuscando(false);
+                return;
+            }
+        } else {
+            // Modo Coordenadas GPS
+            if (!isValidCoordinates(coordenadas)) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Las coordenadas ingresadas no son válidas. Formato requerido: "latitud, longitud".',
+                    icon: 'error',
+                    confirmButtonText: 'Cerrar',
+                });
+                setBuscando(false);
+                return;
+            }
+
+            const [latStr, lngStr] = coordenadas.split(',').map((c) => c.trim());
+            finalLat = parseFloat(latStr);
+            finalLng = parseFloat(lngStr);
+            finalEnlace = `https://www.google.com/maps?q=${finalLat},${finalLng}`;
+        }
+
+        const nuevaUbicacion: Ubicacione = {
+            idUbicacion: 0,
+            desc: ubicacionDescripcion.trim(),
+            enlace: finalEnlace,
+            direccion: modoUbicacion === 'direccion' ? direccion : '',
+            ciudad: modoUbicacion === 'direccion' ? ciudad : '',
+            provincia: modoUbicacion === 'direccion' ? provincia : '',
+            pais: modoUbicacion === 'direccion' ? pais : '',
+            latitud: finalLat,
+            longitud: finalLng,
+            radio: radioValue,
+        };
+
+        setUbicaciones((prev) => [...prev, nuevaUbicacion]);
+        resetFormUbicacion();
+        setBuscando(false);
+        setCrearUbicacion(false);
+    };
+
+    const eliminarUbicacion = useCallback((index: number) => {
+        setUbicaciones((prev) => prev.filter((_, i) => i !== index));
+    }, []);
+
+    const mostrarAlertaAyudaCoordenadas = useCallback(() => {
+        Swal.fire({
+            title: '¿Cómo obtener coordenadas de Google Maps?',
+            html: `
+                <p className="text-start">
+                    1. Ve a <strong>Google Maps</strong> y busca el punto deseado.<br/>
+                    2. Haz clic derecho sobre el punto en el mapa.<br/>
+                    3. Haz clic en las coordenadas que aparecen al inicio del menú desplegable para copiarlas al portapapeles.<br/>
+                    4. Pégalas directamente en el campo <strong>"Latitud, Longitud"</strong>.
+                </p>`,
+            confirmButtonText: 'Cerrar',
+            width: '600px',
+        });
+    }, []);
+
+    return (
+        <>
+            {/* Sección Descripción General */}
+            <div className='mb-4'>
+                <h5>Descripción de la Actividad:</h5>
+                <InputGroup className='gap-1'>
+                    <Form.Control
+                        as='textarea'
+                        rows={3}
+                        style={{ resize: 'none' }}
+                        className='custom-scrollbar'
+                        aria-label='Inserte descripción'
+                        disabled={!editandoDescripcion}
+                        value={descripcion}
+                        onChange={(e) => setDescripcion(e.target.value)}
+                        isInvalid={textLimitError(descripcion, 2000)}
+                    />
+                    <Form.Control.Feedback type='invalid' tooltip>
+                        Máximo 2000 caracteres
+                    </Form.Control.Feedback>
+                    <Button variant='secondary' onClick={handleEditDescripcionToggle}>
+                        {editandoDescripcion ? <Save /> : <Edit />}
+                    </Button>
+                </InputGroup>
+            </div>
+
+
+            <Button
+                variant='primary'
+                onClick={() => setCrearUbicacion(!crearUbicacion)}
+                className='mb-3'
+            >
+                {crearUbicacion ? 'Cancelar' : 'Agregar Nueva Ubicación'}
+            </Button>
+            {crearUbicacion && (<>
+
+                {/* Sección Agregar Ubicación */}
+                <div className='border rounded p-3 bg-light mb-3'>
+
+                    {/* 1. Descripción de la Ubicación */}
+                    <Row className='mb-3'>
+                        <Col md={12}>
+                            <Form.Group controlId='ubicacionDescripcion'>
+                                <Form.Label>
+                                    <strong>Descripción del Lugar / Punto</strong>
+                                </Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    placeholder='Ej: Punto de encuentro, Predio principal, Acceso Norte'
+                                    value={ubicacionDescripcion}
+                                    onChange={(e) => setUbicacionDescripcion(e.target.value)}
+                                />
+                            </Form.Group>
+                        </Col>
+                    </Row>
+
+                    {/* 2. Selección Tipo de Geometría (Punto vs Circunferencia) */}
+                    <Row className='mb-3 align-items-end'>
+                        <Col md={6}>
+                            <Form.Label className='d-block text-muted mb-2'>Tipo de Cobertura</Form.Label>
+                            <ToggleButtonGroup
+                                type='radio'
+                                name='tipoForma'
+                                value={tipoForma}
+                                onChange={(val) => {
+                                    setTipoForma(val);
+                                    if (val === 'punto') setRadio('0');
+                                }}
+                                className='w-100'
+                            >
+                                <ToggleButton id='tbtn-forma-punto' value={'punto'} variant='outline-secondary'>
+                                    Punto Único
+                                </ToggleButton>
+                                <ToggleButton id='tbtn-forma-circ' value={'circunferencia'} variant='outline-secondary'>
+                                    Circunferencia / Área
+                                </ToggleButton>
+                            </ToggleButtonGroup>
+                        </Col>
+
+                        {tipoForma === 'circunferencia' && (
+                            <Col md={6}>
+                                <Form.Group controlId='radioUbicacion'>
+                                    <Form.Label>Radio de cobertura (metros)</Form.Label>
+                                    <Form.Control
+                                        type='number'
+                                        min='1'
+                                        placeholder='Ej: 500'
+                                        value={radio}
+                                        onChange={(e) => setRadio(e.target.value)}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        )}
+                    </Row>
+
+                    {/* 3. Selector de Modo de ingreso (Dirección vs Coordenadas) */}
+                    <Row className='mb-3'>
+                        <Col md={12}>
+                            <Form.Label className='d-block text-muted mb-2'>
+                                ¿Cómo deseas definir las coordenadas?
+                            </Form.Label>
+                            <ToggleButtonGroup
+                                type='radio'
+                                name='modoUbicacion'
+                                value={modoUbicacion}
+                                onChange={(val) => setModoUbicacion(val)}
+                                className='w-100'
+                            >
+                                <ToggleButton id='tbtn-dir-ub' value={'direccion'} variant='outline-primary'>
+                                    Dirección Postal (Geocodificación)
+                                </ToggleButton>
+                                <ToggleButton id='tbtn-geo-ub' value={'coordenadas'} variant='outline-primary'>
+                                    Coordenadas Directas (Lat / Lng)
+                                </ToggleButton>
+                            </ToggleButtonGroup>
+                        </Col>
+                    </Row>
+
+                    {/* MODO 1: DIRECCIÓN POSTAL */}
+                    {modoUbicacion === 'direccion' && (
+                        <>
+                            <Row className='g-3 mb-3'>
+                                <Col md={6}>
+                                    <Form.Group controlId='dirCalle'>
+                                        <Form.Label>Dirección (Calle y número)</Form.Label>
+                                        <Form.Control
+                                            type='text'
+                                            placeholder='Ej: San Martín 3234'
+                                            value={direccion}
+                                            onChange={(e) => setDireccion(e.target.value)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group controlId='dirCiudad'>
+                                        <Form.Label>Ciudad / Localidad</Form.Label>
+                                        <Form.Control
+                                            type='text'
+                                            placeholder='Ej: Santa Fe'
+                                            value={ciudad}
+                                            onChange={(e) => setCiudad(e.target.value)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <Row className='g-3 mb-3'>
+                                <Col md={6}>
+                                    <Form.Group controlId='dirProvincia'>
+                                        <Form.Label>Provincia / Estado</Form.Label>
+                                        <Form.Control
+                                            type='text'
+                                            placeholder='Ej: Santa Fe'
+                                            value={provincia}
+                                            onChange={(e) => setProvincia(e.target.value)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group controlId='dirPais'>
+                                        <Form.Label>País</Form.Label>
+                                        <Form.Control
+                                            type='text'
+                                            placeholder='Ej: Argentina'
+                                            value={pais}
+                                            onChange={(e) => setPais(e.target.value)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                        </>
+                    )}
+
+                    {/* MODO 2: COORDENADAS GPS */}
+                    {modoUbicacion === 'coordenadas' && (
+                        <Row className='g-3 mb-3'>
+                            <div className='d-flex justify-content-between align-items-center mb-3'>
+                        <Button variant='info' size='sm' onClick={mostrarAlertaAyudaCoordenadas}>
+                            ¿Cómo obtener coordenadas?
+                        </Button>
+                    </div>
+                            <Col md={12}>
+                                <Form.Group controlId='coordsGps'>
+                                    <Form.Label>Latitud, Longitud</Form.Label>
+                                    <Form.Control
+                                        type='text'
+                                        placeholder='Ej: -31.646366, -60.706766'
+                                        value={coordenadas}
+                                        onChange={(e) => setCoordenadas(e.target.value)}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                    )}
+
+                    {/* Botón para procesar y agregar ubicación */}
+                    <Row className='mt-3'>
+                        <Col md={12}>
+                            <Button
+                                variant='success'
+                                onClick={agregarUbicacion}
+                                disabled={
+                                    buscando ||
+                                    !ubicacionDescripcion.trim() ||
+                                    (modoUbicacion === 'direccion' && (!direccion || !ciudad || !provincia || !pais)) ||
+                                    (modoUbicacion === 'coordenadas' && !coordenadas)
+                                }
+                                className='w-100 py-2 fw-bold'
+                            >
+                                {buscando ? 'Buscando Coordenadas...' : 'Agregar Ubicación'}
+                            </Button>
+                        </Col>
+                    </Row>
+                </div>
+
+            </>
+        )}
+
+
+
+        {!crearUbicacion && (
+            <>
+                <h3 className='mb-3'>Lista de Ubicaciones</h3>
+                <UbicacionesList ubicaciones={ubicaciones} eliminarUbicacion={eliminarUbicacion} />
+            </>
+        )}
+
+        </>
+    );
 };
 
 export default FormDescriptionUbication;
