@@ -7,82 +7,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Swal from 'sweetalert2';
 import { Actividad, Institucione } from '@/types/ActivityProps';
 import { getInstituciones } from '@/services/api/private/metas';
+import { handleSearch } from '@/services/api/public/geoloc/geolocationService';
 
 interface Props {
 	activity: Actividad;
 	saveData: (data: Partial<Actividad>) => void;
 }
-
-interface LocationData {
-  lat: number;
-  lng: number;
-  displayName: string;
-}
-
-const handleSearch = async ({street,city,state,country},tries = 0) => {
-
-
-   	const params = new URLSearchParams({
-        street: street,
-        city: city,
-        state: state,
-        country: country,
-        format: 'json',
-        addressdetails: '1',
-        limit: '1',
-    });
-
-	try {
-
-		console.log('Buscando dirección en OpenStreetMap:', params.toString());
-	  const response = await fetch(
-		`https://nominatim.openstreetmap.org/search?${params.toString()}`,
-		{
-		  headers: {
-			'User-Agent': 'MiAplicacionInstituciones/1.0',
-		  },
-		}
-	  );
-
-	  const data = await response.json();
-
-	  if (data && data.length > 0) {
-		const result = data[0];
-		const newLocation: LocationData = {
-		  lat: parseFloat(result.lat),
-		  lng: parseFloat(result.lon),
-		  displayName: result.display_name,
-		};
-
-		return({ 
-				lat: newLocation.lat, 
-				lng: newLocation.lng, 
-				address: newLocation.displayName 
-			}
-		
-		);
-		
-	  } else {
-		console.log('No se encontraron resultados para la dirección ingresada.');
-		return undefined;
-	  }
-	} catch (err) {
-	  console.error('Error al buscar dirección:', err);
-	  if(tries < 3){
-
-		await new Promise((resolve) => setTimeout(resolve, 2000)); // frenamos la ejecucion por 2 segundos antes de reintentar
-
-      	return await handleSearch({ street, city, state, country }, tries + 1);
-
-	  }
-
-	  return undefined;
-	  //setError('Ocurrió un error al consultar el servicio de ubicación.');
-	} 
-
-}
-
-
 
 
 export default function FormOrgInst( { activity, saveData }: Props ) {
@@ -100,7 +30,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 	const [modoUbicacion, setModoUbicacion] = useState('direccion');
 
 	const [direccion, setDireccion] = useState('');
-	const [ciudad, setCiudad] = useState('Santa Fe');
+	const [ciudad, setCiudad] = useState('Santa Fe, La Capital');
 	const [provincia, setProvincia] = useState('Santa Fe');
 
 	const [pais, setPais] = useState('Argentina');
@@ -137,6 +67,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 				finalCoordenadas = `${searchResult.lat}, ${searchResult.lng}`;
 				latitud = searchResult.lat.toString();
 				longitud = searchResult.lng.toString();
+				console.log(searchResult.displayName);
 
 				if(!isValidCoordinates(finalCoordenadas)){
 					Swal.fire({
@@ -154,7 +85,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 
 				Swal.fire({
 					title: 'Error',
-					text: 'No se pudieron obtener las coordenadas para la dirección ingresada. Verifique que la dirección sea correcta o ingrese las coordenadas manualmente. En el caso que la direccion sea correcta ignore este mensaje.',
+					text: 'No se pudieron obtener las coordenadas para la dirección ingresada. Verifique que la dirección sea correcta o ingrese las coordenadas manualmente.',
 					icon: 'error',
 					confirmButtonText: 'Cerrar',
 				});
@@ -233,7 +164,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 		// 5. Limpiar el formulario
 		setName('');
 		setDireccion('');
-		setCiudad('Santa Fe');
+		setCiudad('Santa Fe, La Capital');
 		setProvincia('Santa Fe');
 		setPais('Argentina');
 		setCoordenadas('');
@@ -440,7 +371,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 											<Form.Label>Ciudad / Localidad</Form.Label>
 											<Form.Control
 												type='text'
-												placeholder='Ej: Santa Fe'
+												placeholder='Ej: Santa Fe, La Capital'
 												value={ciudad}
 												onChange={(e) => setCiudad(e.target.value)}
 											/>

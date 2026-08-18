@@ -16,6 +16,7 @@ const ActivityScreen = lazy(() => import('@/pages/metas/ActivityScreen'));
 const GanttScreen = lazy(() => import('@/pages/metas/GanttScreen'));
 const InstitutionsScreen = lazy(() => import('@/pages/metas/InstitutionsScreen'));
 const GraphicsScreen = lazy(() => import('@/pages/metas/GraphicsScreen'));
+const SelectGraphicsScreen = lazy(() => import('@/pages/metas/SelectGraphicsScreen'));
 const MainScreen = lazy(() => import('@/pages/metas/MainScreen'));
 const ManagementScreen = lazy(() => import('@/pages/ManagementScreen'));
 const ResumenAreaScreen = lazy(() => import('@/pages/metas/ResumenAreaScreen'));
@@ -49,6 +50,8 @@ const RootNavigation = () => {
 					<Route path='gantt' element={<GanttScreen />} />
 					<Route path='instituciones' element={<InstitutionsScreen />} />
 					<Route path='ubicaciones' element={<UbicacionActividadScreen />} />
+					<Route path='seleccionar-grafica' element={<SelectGraphicsScreen />} />
+
 					<Route path='metas/graficas' element={<GraphicsScreen />} />
 					<Route path='metas/:idPrograma/:idArea' element={<ActivityScreen />} />
 					<Route path='metas/:idPrograma/:idArea/resumen' element={<ResumenAreaScreen />} />

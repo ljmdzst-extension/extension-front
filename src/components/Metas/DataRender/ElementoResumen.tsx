@@ -276,7 +276,7 @@ const styles = {
 		alignItems: 'center',
 		justifyContent: 'space-between',
 		cursor: 'pointer',
-		backgroundColor: '#ffffff',
+		backgroundColor: '#f3f4f6',
 		borderLeft: '5px solid #0a4b43',
 	},
 	titleWrapper: {

@@ -58,10 +58,7 @@ const PrivateLayout = ({ children }: any) => {
 					{children} {/* children se usa para componentes que envolvemos */}
 					<Outlet /> {/* Outlet se usa para rutas anidadas */}
 				</div>
-			</div>
-			<br></br>
-			<br></br>
-			
+			</div>		
 			<Footer />
 		</div>
 	);

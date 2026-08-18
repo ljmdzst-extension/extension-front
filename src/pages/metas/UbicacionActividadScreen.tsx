@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import MapaUbicacionActividades, { UbicacionPunto } from './MapaUbicacionActividades';
 import { getUbicacionActividadParaMapa } from '@/services/api/private/metas/graphics/graphicsService';
+import YearSelector from '@/components/Common/YearSelector';
 
 
 
@@ -47,28 +48,15 @@ const UbicacionActividadScreen = () => {
                 className='m-1 rounded cursor-pointer'
                 style={{ background: '#0a5d52', color: 'white' }}
                 onClick={() => {
-                  navigation('/gestion/metas');
+                  navigation('/gestion/seleccionar-grafica');
                 }}
             />
         </div>
  
       <div className='w-100'>
-        <div>
-          <label htmlFor="year-select" style={{ marginRight: '8px', fontWeight: 'bold' }}>
-            Seleccionar Año:
-          </label>
-          <select
-            id="year-select"
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(Number(e.target.value))}
-          >
-            {availableYears.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-        </div>          
+        <div className='d-flex justify-content-center align-items-center m-2'>
+          <YearSelector year={selectedYear} onYearChange={setSelectedYear} />
+        </div>
         <MapaUbicacionActividades ubicaciones={ubicaciones} />
         
       </div>

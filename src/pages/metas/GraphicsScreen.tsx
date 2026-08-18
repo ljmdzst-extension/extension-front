@@ -55,42 +55,10 @@ const GraphicsScreen = () => {
 					className='m-1 rounded cursor-pointer'
 					style={{ background: '#0a5d52', color: 'white' }}
 					onClick={() => {
-						navigation('/gestion/metas');
+                 		navigation('/gestion/seleccionar-grafica');
 					}}
 				/>
 			</div>
-
-
-			<Button
-					variant='secondary'
-					className='m-2 rounded cursor-pointer'
-					onClick={() => {
-						navigation('/gestion/gantt');
-					}}
-				>
-					Ver grafico de Gantt
-			</Button>
-
-			<Button
-					variant='secondary'
-					className='m-2 rounded cursor-pointer'
-					onClick={() => {
-						navigation('/gestion/instituciones');
-					}}
-				>
-					Ver instituciones
-			</Button>
-
-			<Button
-					variant='secondary'
-					className='m-2 rounded cursor-pointer'
-					onClick={() => {
-						navigation('/gestion/ubicaciones');
-					}}
-				>
-					Ver Ubicaciones de actividades por año
-			</Button>
-
 
 			<div className='d-flex justify-content-center align-items-center m-2'>
 				<YearSelector year={year} onYearChange={handleYearChange} />

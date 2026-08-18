@@ -35,7 +35,7 @@ const InstitutionsScreen = () => {
 
   return (
     <div className='container my-3'>
-      <div className='d-flex justify-content-between align-items-center'>
+      <div className='d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom'>
             <CommonTitle bold underline textAlign='center'>
                 Mapa de Instituciones
             </CommonTitle>
@@ -44,7 +44,7 @@ const InstitutionsScreen = () => {
                 className='m-1 rounded cursor-pointer'
                 style={{ background: '#0a5d52', color: 'white' }}
                 onClick={() => {
-                  navigation('/gestion/metas');
+                  navigation('/gestion/seleccionar-grafica');
                 }}
             />
         </div>

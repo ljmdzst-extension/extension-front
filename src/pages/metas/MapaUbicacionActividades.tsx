@@ -4,21 +4,10 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Ubicacione } from '@/types/ActivityProps';
 
-// Fix de íconos predeterminados de Leaflet para Webpack / Next.js / Vite
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-    iconUrl: markerIcon,
-    iconRetinaUrl: markerIcon2x,
-    shadowUrl: markerShadow,
-});
-
-// Extendemos Ubicacione para permitir 'nom' o 'desc' indistintamente
 export type UbicacionMapaItem = Ubicacione & {
     nom?: string;
+    idActividad?: string | number;
+    actividadNombre?: string;
 };
 
 interface Props {
@@ -26,9 +15,51 @@ interface Props {
     height?: string;
 }
 
-const DEFAULT_CENTER: [number, number] = [-31.6333, -60.7000]; // Santa Fe, Argentina
+const DEFAULT_CENTER: [number, number] = [-31.6333, -60.7000];
 
-// Componente para reajustar el zoom y centrado automáticamente según los puntos
+// Paleta de colores predefinida para actividades
+const PALETA_COLORES: string[] = [
+    '#e6194b', '#0fb425', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6',
+    '#107903', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#749e81',
+    '#808000', '#ffd8b1', '#000075', '#808080', '#107c41', '#e81123', '#0078d4', '#ff8c00',
+    '#00bcf2', '#b4009e', '#008a00', '#a40000', '#68217a', '#00188f', '#004e8c', '#00bcb4',
+    '#228b22', '#dc143c', '#4b0082', '#ff1493', '#795548', '#607d8b', '#ff5722', '#9c27b0',
+    '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4caf50', '#8bc34a',
+    '#cddc39', '#ffeb3b', '#ffc107', '#ff9800', '#8d6e63', '#78909c', '#d32f2f', '#c2185b',
+    '#7b1fa2', '#512da8', '#303f9f', '#1976d2', '#0288d1', '#0097a7', '#00796b', '#388e3c',
+    '#689f38', '#afb42b', '#fbc02d', '#ffa000', '#f57c00', '#e64a19'
+];
+
+// Función para obtener un color consistente según la actividad
+const obtenerColorActividad = (key?: string | number): string => {
+    if (!key) return '#0d6efd';
+    const str = String(key);
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % PALETA_COLORES.length;
+    return PALETA_COLORES[index];
+};
+
+// Generador de ícono marcador dinámico en SVG
+const crearIconoMarcador = (color: string) => {
+    const svgIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36" width="28" height="42">
+            <path fill="${color}" stroke="#FFFFFF" stroke-width="1.5" d="M12 0C5.37 0 0 5.37 0 12c0 9 12 24 12 24s12-15 12-24c0-6.63-5.37-12-12-12z"/>
+            <circle cx="12" cy="12" r="4.5" fill="#FFFFFF"/>
+        </svg>
+    `;
+
+    return L.divIcon({
+        className: 'custom-leaflet-marker',
+        html: svgIcon,
+        iconSize: [28, 42],
+        iconAnchor: [14, 42],
+        popupAnchor: [0, -38],
+    });
+};
+
 const AutoFitBounds: React.FC<{ points: [number, number][] }> = ({ points }) => {
     const map = useMap();
 
@@ -46,7 +77,6 @@ export const MapaUbicacionActividades: React.FC<Props> = ({
     ubicaciones,
     height = '380px',
 }) => {
-    // Parsear y filtrar elementos con coordenadas válidas (latitud y longitud)
     const elementosValidos = ubicaciones
         .map((item) => {
             const lat = typeof item.latitud === 'string' ? parseFloat(item.latitud) : item.latitud;
@@ -89,7 +119,6 @@ export const MapaUbicacionActividades: React.FC<Props> = ({
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
 
-                {/* Encuadre automático */}
                 <AutoFitBounds points={coordsList} />
 
                 {elementosValidos.map((item, index) => {
@@ -98,28 +127,42 @@ export const MapaUbicacionActividades: React.FC<Props> = ({
                     const esCirculo = radioMetros > 0;
                     const nombreLugar = item.desc || item.nom || 'Ubicación sin nombre';
 
+                    // Determinar el color según la actividad
+                    const idActividad = item.idActividad || item.actividadNombre || index;
+                    const colorActividad = obtenerColorActividad(idActividad);
+                    console.log('Color para actividad', idActividad, colorActividad);
+                    const iconoMarcador = crearIconoMarcador(colorActividad);
+
                     return (
                         <React.Fragment key={key}>
-                            {/* DIBUJAR CIRCUNFERENCIA SI RADIO > 0 */}
+                            {/* DIBUJAR CIRCUNFERENCIA CON COLOR DINÁMICO */}
                             {esCirculo && (
                                 <Circle
                                     center={[item.lat, item.lng]}
                                     radius={radioMetros}
                                     pathOptions={{
-                                        color: '#0d6efd',       // Azul Bootstrap
-                                        fillColor: '#0d6efd',
-                                        fillOpacity: 0.25,
+                                        color: colorActividad,
+                                        fillColor: colorActividad,
+                                        fillOpacity: 0.2,
                                         weight: 2,
-                                        dashArray: '4, 4',       // Borde punteado para distinguir áreas
+                                        dashArray: '4, 4',
                                     }}
                                 />
                             )}
 
-                            {/* MARCADOR DEL PUNTO CENTRAL */}
-                            <Marker position={[item.lat, item.lng]}>
+                            {/* MARCADOR CON SVG DEL COLOR DE LA ACTIVIDAD */}
+                            <Marker position={[item.lat, item.lng]} icon={iconoMarcador}>
                                 <Popup>
                                     <div className="p-1 style-popup">
-                                        <strong className="text-primary d-block mb-1">{nombreLugar}</strong>
+                                        <strong className="d-block mb-1" style={{ color: 'black' }}>
+                                            {nombreLugar}
+                                        </strong>
+
+                                        {item.actividadNombre && (
+                                            <div className="fw-semibold small mb-2 text-dark">
+                                                Actividad: {item.actividadNombre}
+                                            </div>
+                                        )}
 
                                         {esCirculo ? (
                                             <span className="badge bg-info text-dark mb-2">

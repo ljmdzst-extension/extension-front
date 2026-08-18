@@ -7,64 +7,13 @@ import { Row, Col, ToggleButtonGroup, ToggleButton, Table } from 'react-bootstra
 import { ContentCopy, Edit, Delete, Save } from '@mui/icons-material';
 import { textLimitError } from '@/utils/validacionesForms';
 import { Actividad, Ubicacione } from '@/types/ActivityProps';
+import { handleSearch } from '@/services/api/public/geoloc/geolocationService';
 
 interface Props {
     activity: Actividad;
     saveData: (data: Partial<Actividad>) => void;
 }
 
-interface LocationSearchParams {
-    street: string;
-    city: string;
-    state: string;
-    country: string;
-}
-
-// Función auxiliar para buscar coordenadas en OpenStreetMap Nominatim
-const handleSearch = async ({ street, city, state, country }: LocationSearchParams, tries = 0) => {
-    const params = new URLSearchParams({
-        street,
-        city,
-        state,
-        country,
-        format: 'json',
-        addressdetails: '1',
-        limit: '1',
-    });
-
-    try {
-        console.log('Buscando dirección en OpenStreetMap:', params.toString());
-        const response = await fetch(
-            `https://nominatim.openstreetmap.org/search?${params.toString()}`,
-            {
-                headers: {
-                    'User-Agent': 'MiAplicacionActividades/1.0',
-                },
-            }
-        );
-
-        const data = await response.json();
-
-        if (data && data.length > 0) {
-            const result = data[0];
-            return {
-                lat: parseFloat(result.lat),
-                lng: parseFloat(result.lon),
-                displayName: result.display_name,
-            };
-        } else {
-            console.log('No se encontraron resultados para la dirección ingresada.');
-            return undefined;
-        }
-    } catch (err) {
-        console.error('Error al buscar dirección:', err);
-        if (tries < 3) {
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-            return await handleSearch({ street, city, state, country }, tries + 1);
-        }
-        return undefined;
-    }
-};
 
 // Función de validación de coordenadas (Latitud, Longitud)
 const isValidCoordinates = (coord: string) => {
@@ -136,7 +85,7 @@ const UbicacionesList = ({
                                 <td>
                                     {mapUrl !== '#' ? (
                                         <a href={mapUrl} target='_blank' rel='noopener noreferrer'>
-                                            {hasCoords ? `${item.latitud}, ${item.longitud}` : 'Ver en Mapa'}
+                                            {item.ciudad ? `${item.direccion}, ${item.ciudad}, ${item.provincia}, ${item.pais}` : 'Ver en Mapa'}
                                         </a>
                                     ) : (
                                         <span className='text-muted'>Sin coordenadas</span>
@@ -191,7 +140,7 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
 
     // Campos modo dirección
     const [direccion, setDireccion] = useState<string>('');
-    const [ciudad, setCiudad] = useState<string>('Santa Fe');
+    const [ciudad, setCiudad] = useState<string>('Santa Fe, La Capital');
     const [provincia, setProvincia] = useState<string>('Santa Fe');
     const [pais, setPais] = useState<string>('Argentina');
 
@@ -216,7 +165,7 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
     const resetFormUbicacion = () => {
         setUbicacionDescripcion('');
         setDireccion('');
-        setCiudad('Santa Fe');
+        setCiudad('Santa Fe, La Capital');
         setProvincia('Santa Fe');
         setPais('Argentina');
         setCoordenadas('');
@@ -391,7 +340,7 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
                                 </Form.Label>
                                 <Form.Control
                                     type='text'
-                                    placeholder='Ej: Punto de encuentro, Predio principal, Acceso Norte'
+                                    placeholder='Ubicación de la actividad'
                                     value={ubicacionDescripcion}
                                     onChange={(e) => setUbicacionDescripcion(e.target.value)}
                                 />
