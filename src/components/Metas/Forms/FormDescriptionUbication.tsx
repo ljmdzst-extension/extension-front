@@ -270,8 +270,23 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
             `${ubicacion.latitud}, ${ubicacion.longitud}`
         );
 
-        // Como ya tenemos las coordenadas, no hace falta geocodificar
-        setModoUbicacion('coordenadas');
+        const nuevaUbicacion: Ubicacione = {
+                idUbicacion: 0,
+                desc: ubicacion.descripcion,
+                enlace: `https://www.google.com/maps?q=${ubicacion.latitud},${ubicacion.longitud}`,
+                direccion: ubicacion.direccion,
+                ciudad: ubicacion.ciudad,
+                provincia: ubicacion.provincia,
+                departamento: ubicacion.departamento,
+                latitud: String(ubicacion.latitud),
+                longitud: String(ubicacion.longitud),
+                radio: tipoForma === 'circunferencia' ? parseFloat(radio) : 0,
+            };
+
+        setUbicaciones((prev) => [...prev, nuevaUbicacion]);
+
+        resetFormUbicacion();
+        setCrearUbicacion(false);
     };
 
     // Función para agregar la nueva ubicación
