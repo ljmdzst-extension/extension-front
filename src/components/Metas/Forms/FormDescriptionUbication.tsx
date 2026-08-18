@@ -15,6 +15,90 @@ interface Props {
 }
 
 
+interface UbicacionPredefinida {
+    descripcion: string;
+    direccion: string;
+    ciudad: string;
+    provincia: string;
+    departamento: string;
+    pais: string;
+    latitud: number;
+    longitud: number;
+}
+
+const ubicacionesPredefinidas: UbicacionPredefinida[] = [
+    {
+        descripcion: 'FADU',
+        direccion: 'Ruta Nacional 168',
+        ciudad: 'Santa Fe',
+        provincia: 'Santa Fe',
+        departamento: 'La Capital',
+        pais: 'Argentina',
+        latitud: -31.640231204824136,
+        longitud: -60.67352352275283,
+    },
+    {
+        descripcion: 'FHUC',
+        direccion: 'Ruta Nacional 168',
+        ciudad: 'Santa Fe',
+        provincia: 'Santa Fe',
+        departamento: 'La Capital',
+        pais: 'Argentina',
+        latitud: -31.640318536239345,
+        longitud: -60.67366288619337,
+    },
+    {
+        descripcion: 'FICH',
+        direccion: 'Ruta Nacional 168',
+        ciudad: 'Santa Fe',
+        provincia: 'Santa Fe',
+        departamento: 'La Capital',
+        pais: 'Argentina',
+        latitud: -31.63990524713487,
+        longitud: -60.67210683522049,
+    },
+    {
+        descripcion: 'FBCB',
+        direccion: 'Ruta Nacional 168',
+        ciudad: 'Santa Fe',
+        provincia: 'Santa Fe',
+        departamento: 'La Capital',
+        pais: 'Argentina',
+        latitud: -31.639897918296633, 
+        longitud: -60.67281315126916,
+    },
+    {
+        descripcion: 'ISM',
+        direccion: 'Ruta Nacional 168',
+        ciudad: 'Santa Fe',
+        provincia: 'Santa Fe',
+        departamento: 'La Capital',
+        pais: 'Argentina',
+        latitud: -31.640350804771288, 
+        longitud: -60.67408842134198,
+    },
+    {
+        descripcion: 'FCM',
+        direccion: 'Ruta Nacional 168',
+        ciudad: 'Santa Fe',
+        provincia: 'Santa Fe',
+        departamento: 'La Capital',
+        pais: 'Argentina',
+        latitud: -31.639720282731595,
+        longitud: -60.670574685948985,
+    },
+    {
+        descripcion: 'FCJS',
+        direccion: 'Candido Pujato 2751',
+        ciudad: 'Santa Fe',
+        provincia: 'Santa Fe',
+        departamento: 'La Capital',
+        pais: 'Argentina',
+        latitud: -31.63435415364758, 
+        longitud: -60.70505958802472
+    }
+];
+
 // Función de validación de coordenadas (Latitud, Longitud)
 const isValidCoordinates = (coord: string) => {
     const regex = /^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$/;
@@ -173,6 +257,23 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
         setTipoForma('punto');
     };
 
+    const seleccionarUbicacionPredefinida = (
+    ubicacion: UbicacionPredefinida
+    ) => {
+        setUbicacionDescripcion(ubicacion.descripcion);
+        setDireccion(ubicacion.direccion);
+        setCiudad(ubicacion.ciudad);
+        setProvincia(ubicacion.provincia);
+        setDepartamento(ubicacion.departamento);
+
+        setCoordenadas(
+            `${ubicacion.latitud}, ${ubicacion.longitud}`
+        );
+
+        // Como ya tenemos las coordenadas, no hace falta geocodificar
+        setModoUbicacion('coordenadas');
+    };
+
     // Función para agregar la nueva ubicación
     const agregarUbicacion = async () => {
         if (!ubicacionDescripcion.trim()) {
@@ -198,8 +299,8 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
 
         setBuscando(true);
 
-        let finalLat: number | undefined = undefined;
-        let finalLng: number | undefined = undefined;
+        let finalLat: string | undefined = undefined;
+        let finalLng: string | undefined = undefined;
         let finalEnlace = '';
 
         if (modoUbicacion === 'direccion') {
@@ -345,6 +446,26 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
                                     value={ubicacionDescripcion}
                                     onChange={(e) => setUbicacionDescripcion(e.target.value)}
                                 />
+                                <div className='mt-2'>
+                                    <Form.Label className='text-muted mb-1'>
+                                        <small>Autocompletado directo de ubicaciones</small>
+                                    </Form.Label>
+
+                                    <div className='d-flex flex-wrap gap-2'>
+                                        {ubicacionesPredefinidas.map((ubicacion) => (
+                                            <Button
+                                                key={ubicacion.descripcion}
+                                                variant='outline-primary'
+                                                size='sm'
+                                                onClick={() =>
+                                                    seleccionarUbicacionPredefinida(ubicacion)
+                                                }
+                                            >
+                                                {ubicacion.descripcion}
+                                            </Button>
+                                        ))}
+                                    </div>
+                                </div>
                             </Form.Group>
                         </Col>
                     </Row>
