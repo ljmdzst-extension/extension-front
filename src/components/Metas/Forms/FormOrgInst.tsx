@@ -30,10 +30,10 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 	const [modoUbicacion, setModoUbicacion] = useState('direccion');
 
 	const [direccion, setDireccion] = useState('');
-	const [ciudad, setCiudad] = useState('Santa Fe, La Capital');
+	const [ciudad, setCiudad] = useState('Santa Fe');
 	const [provincia, setProvincia] = useState('Santa Fe');
 
-	const [pais, setPais] = useState('Argentina');
+	const [departamento, setDepartamento] = useState('La Capital');
 
 	useEffect(() => {
 		saveData({ listaInstituciones: arrayInstitucion });
@@ -53,21 +53,21 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 
 		if (modoUbicacion === 'direccion' && ubicacion.trim() === '') {
 			// Generar string de dirección legible si no existía
-			finalUbicacion = `${direccion}, ${ciudad}, ${provincia}, ${pais}`;
+			finalUbicacion = `${direccion}, ${ciudad}, ${provincia}, ${departamento}`;
 
 			// Buscar coordenadas en OpenStreetMap mediante la dirección
 			const searchResult = await handleSearch({
-				street: direccion,
-				city: ciudad,
-				state: provincia,
-				country: pais
+				direccion: direccion,
+				ciudad: ciudad,
+				provincia: provincia,
+				departamento: departamento,
+				pais: 'Argentina'
 			});
 
 			if (searchResult) {
-				finalCoordenadas = `${searchResult.lat}, ${searchResult.lng}`;
-				latitud = searchResult.lat.toString();
-				longitud = searchResult.lng.toString();
-				console.log(searchResult.displayName);
+				finalCoordenadas = `${searchResult.latitud}, ${searchResult.longitud}`;
+				latitud = String(searchResult.latitud);
+				longitud = String(searchResult.longitud);
 
 				if(!isValidCoordinates(finalCoordenadas)){
 					Swal.fire({
@@ -150,7 +150,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 			idInstitucion: 0,
 			nom: name,
 			ubicacion: finalUbicacion,
-			pais: modoUbicacion === 'direccion' ? pais : '',
+			departamento: modoUbicacion === 'direccion' ? departamento : '',
         	provincia: modoUbicacion === 'direccion' ? provincia : '',
         	ciudad: modoUbicacion === 'direccion' ? ciudad : '',
         	direccion: modoUbicacion === 'direccion' ? direccion : '',
@@ -164,9 +164,9 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 		// 5. Limpiar el formulario
 		setName('');
 		setDireccion('');
-		setCiudad('Santa Fe, La Capital');
+		setCiudad('Santa Fe');
 		setProvincia('Santa Fe');
-		setPais('Argentina');
+		setDepartamento('La Capital');
 		setCoordenadas('');
 		setUbicacion('');
 		setGuardando(false);
@@ -371,7 +371,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 											<Form.Label>Ciudad / Localidad</Form.Label>
 											<Form.Control
 												type='text'
-												placeholder='Ej: Santa Fe, La Capital'
+												placeholder='Ej: Santa Fe'
 												value={ciudad}
 												onChange={(e) => setCiudad(e.target.value)}
 											/>
@@ -391,13 +391,13 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 										</Form.Group>
 									</Col>
 									<Col md={6}>
-										<Form.Group controlId="pais">
-											<Form.Label>País</Form.Label>
+										<Form.Group controlId="Departamento">
+											<Form.Label>Departamento</Form.Label>
 											<Form.Control
 												type='text'
-												placeholder='Ej: Argentina'
-												value={pais}
-												onChange={(e) => setPais(e.target.value)}
+												placeholder='Ej: La Capital'
+												value={departamento}
+												onChange={(e) => setDepartamento(e.target.value)}
 											/>
 										</Form.Group>
 									</Col>
@@ -437,7 +437,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 									className='w-100 py-2 fw-bold'
 									disabled={
 										!name || 
-										(modoUbicacion === 'direccion' && (!ciudad || !provincia || !pais)) ||
+										(modoUbicacion === 'direccion' && (!ciudad || !provincia || !departamento)) ||
 										(modoUbicacion === 'coordenadas' && (!coordenadas))
 									}
 								>
@@ -498,7 +498,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 												target="_blank"
 												rel="noopener noreferrer"
 												>
-												{item.pais ? `${item.direccion}, ${item.ciudad},${item.provincia}` : 'Ver en Google Maps'}
+												{item.ciudad ? `${item.direccion}, ${item.ciudad},${item.provincia}` : 'Ver en Google Maps'}
 											</a>
 											) : (
 												<a

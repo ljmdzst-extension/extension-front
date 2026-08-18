@@ -85,7 +85,7 @@ const UbicacionesList = ({
                                 <td>
                                     {mapUrl !== '#' ? (
                                         <a href={mapUrl} target='_blank' rel='noopener noreferrer'>
-                                            {item.ciudad ? `${item.direccion}, ${item.ciudad}, ${item.provincia}, ${item.pais}` : 'Ver en Mapa'}
+                                            {item.ciudad ? `${item.direccion}, ${item.ciudad}, ${item.provincia}, ${item.departamento}` : 'Ver en Mapa'}
                                         </a>
                                     ) : (
                                         <span className='text-muted'>Sin coordenadas</span>
@@ -140,9 +140,9 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
 
     // Campos modo dirección
     const [direccion, setDireccion] = useState<string>('');
-    const [ciudad, setCiudad] = useState<string>('Santa Fe, La Capital');
+    const [ciudad, setCiudad] = useState<string>('Santa Fe');
     const [provincia, setProvincia] = useState<string>('Santa Fe');
-    const [pais, setPais] = useState<string>('Argentina');
+    const [departamento, setDepartamento] = useState<string>('La Capital');
 
     // Campos modo coordenadas
     const [coordenadas, setCoordenadas] = useState<string>('');
@@ -165,9 +165,9 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
     const resetFormUbicacion = () => {
         setUbicacionDescripcion('');
         setDireccion('');
-        setCiudad('Santa Fe, La Capital');
+        setCiudad('Santa Fe');
         setProvincia('Santa Fe');
-        setPais('Argentina');
+        setDepartamento('La Capital');
         setCoordenadas('');
         setRadio('0');
         setTipoForma('punto');
@@ -203,7 +203,7 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
         let finalEnlace = '';
 
         if (modoUbicacion === 'direccion') {
-            if (!direccion.trim() || !ciudad.trim() || !provincia.trim() || !pais.trim()) {
+            if (!direccion.trim() || !ciudad.trim() || !provincia.trim() || !departamento.trim()) {
                 Swal.fire({
                     title: 'Error',
                     text: 'Complete todos los campos de la dirección postal.',
@@ -215,15 +215,16 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
             }
 
             const result = await handleSearch({
-                street: direccion,
-                city: ciudad,
-                state: provincia,
-                country: pais,
+                direccion: direccion,
+                ciudad: ciudad,
+                provincia: provincia,
+                departamento: departamento,
+                pais: 'Argentina'
             });
 
             if (result) {
-                finalLat = result.lat;
-                finalLng = result.lng;
+                finalLat = result.latitud;
+                finalLng = result.longitud;
                 finalEnlace = `https://www.google.com/maps?q=${finalLat},${finalLng}`;
             } else {
                 Swal.fire({
@@ -261,9 +262,9 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
             direccion: modoUbicacion === 'direccion' ? direccion : '',
             ciudad: modoUbicacion === 'direccion' ? ciudad : '',
             provincia: modoUbicacion === 'direccion' ? provincia : '',
-            pais: modoUbicacion === 'direccion' ? pais : '',
-            latitud: finalLat,
-            longitud: finalLng,
+            departamento: modoUbicacion === 'direccion' ? departamento : '',
+            latitud: String(finalLat),
+            longitud: String(finalLng),
             radio: radioValue,
         };
 
@@ -450,13 +451,13 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
                                     </Form.Group>
                                 </Col>
                                 <Col md={6}>
-                                    <Form.Group controlId='dirPais'>
-                                        <Form.Label>País</Form.Label>
+                                    <Form.Group controlId='departamento'>
+                                        <Form.Label>Departamento</Form.Label>
                                         <Form.Control
                                             type='text'
-                                            placeholder='Ej: Argentina'
-                                            value={pais}
-                                            onChange={(e) => setPais(e.target.value)}
+                                            placeholder='Ej: La Capital'
+                                            value={departamento}
+                                            onChange={(e) => setDepartamento(e.target.value)}
                                         />
                                     </Form.Group>
                                 </Col>
@@ -495,7 +496,7 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
                                 disabled={
                                     buscando ||
                                     !ubicacionDescripcion.trim() ||
-                                    (modoUbicacion === 'direccion' && (!direccion || !ciudad || !provincia || !pais)) ||
+                                    (modoUbicacion === 'direccion' && (!direccion || !ciudad || !provincia || !departamento)) ||
                                     (modoUbicacion === 'coordenadas' && !coordenadas)
                                 }
                                 className='w-100 py-2 fw-bold'

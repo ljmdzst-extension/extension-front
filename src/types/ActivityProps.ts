@@ -70,6 +70,13 @@ export interface Ubicacione {
 	idUbicacion: number;
 	enlace: string;
 	desc: string;
+	direccion?: string;
+	ciudad?: string;
+	provincia?: string;
+	departamento?: string;
+	latitud?: string;
+	longitud?: string;
+	radio?: number;
 }
 
 // NOTE: FetchLista
