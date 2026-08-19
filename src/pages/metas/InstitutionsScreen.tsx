@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import MostradorMapaInstituciones, { InstitucionPunto } from './MapaBuscadorEstructurado';
 import { getInstitucionesParaMapa } from '@/services/api/private/metas/graphics/graphicsService';
+import YearSelector from '@/components/Common/YearSelector';
 
 
 
@@ -13,12 +14,13 @@ const InstitutionsScreen = () => {
   const navigation = useNavigate();
 
   const [instituciones, setInstituciones] = useState<InstitucionPunto[]>([]);
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
 
   useEffect(() => {
     const fetchInstituciones = async () => {
   
-     getInstitucionesParaMapa()
+     getInstitucionesParaMapa({ anio: selectedYear })
         .then((data) => {
           if (data.data && Array.isArray(data.data)) {
             setInstituciones(data.data);
@@ -31,7 +33,7 @@ const InstitutionsScreen = () => {
     };
 
     fetchInstituciones();
-  }, []);
+  }, [selectedYear]);
 
   return (
     <div className='container my-3'>
@@ -48,7 +50,10 @@ const InstitutionsScreen = () => {
                 }}
             />
         </div>
-      <div className='w-100'>          
+      <div className='w-100'>
+        <div className='d-flex justify-content-center align-items-center m-2'>
+          <YearSelector year={selectedYear} onYearChange={setSelectedYear} />
+        </div>          
         <MostradorMapaInstituciones instituciones={instituciones} />
       </div>
     </div>

@@ -71,10 +71,10 @@ export const getGraphicsDataGantt = async (anio?: number): Promise<GraphicsRespo
 }
 
 
-export const getInstitucionesParaMapa = async (): Promise<GraphicsResponse> => {
+export const getInstitucionesParaMapa = async ({anio}:{anio:number}): Promise<GraphicsResponse> => {
 	try {
 		const response = await privateAxiosInstance.get<GraphicsResponse>(
-			`${basePath}/instituciones`,
+			`${basePath}/instituciones/${anio}`,
 		);
 
 		console.log('Response from getInstituciones:', response.data); // Log the response data
