@@ -1,4 +1,4 @@
-import { Button, Container, Row } from 'react-bootstrap';
+import { Container, Row } from 'react-bootstrap';
 import { useState } from 'react';
 import Grafico from '@/components/Common/Graficos/Grafico';
 import { useGraphics } from '@/hooks/useGraphics';

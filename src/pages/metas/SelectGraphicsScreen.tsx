@@ -19,19 +19,19 @@ const SelectGraphicsScreen = () => {
         },
         {
             title: 'Gráfico de Gantt',
-            description: 'Consulta la cronología y planificación de proyectos',
+            description: 'Consulta la cronología y planificación de actividades por área',
             icon: <ViewTimelineIcon style={{ fontSize: '2.5rem', color: '#0a5d52' }} />,
             path: '/gestion/gantt',
         },
         {
             title: 'Instituciones',
-            description: 'Gestiona e inspecciona las entidades registradas',
+            description: 'Visualizar la ubicación de las instituciones registradas',
             icon: <AccountBalanceIcon style={{ fontSize: '2.5rem', color: '#0a5d52' }} />,
             path: '/gestion/instituciones',
         },
         {
             title: 'Ubicaciones por Año',
-            description: 'Mapa y distribución de actividades anuales',
+            description: 'Mapa de actividades anuales',
             icon: <PlaceIcon style={{ fontSize: '2.5rem', color: '#0a5d52' }} />,
             path: '/gestion/ubicaciones',
         },

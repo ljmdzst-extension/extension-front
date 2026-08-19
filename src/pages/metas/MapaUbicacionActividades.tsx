@@ -180,7 +180,7 @@ export const MapaUbicacionActividades: React.FC<Props> = ({
 
                                         {(item.ciudad || item.provincia) && (
                                             <div className="small text-muted">
-                                                {[item.ciudad, item.provincia, item.pais].filter(Boolean).join(', ')}
+                                                {[item.ciudad, item.provincia].filter(Boolean).join(', ')}
                                             </div>
                                         )}
 

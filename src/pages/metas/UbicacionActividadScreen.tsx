@@ -2,7 +2,7 @@ import CommonTitle from '@/components/Common/Text/CommonTitle';
 import { ArrowBack } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import MapaUbicacionActividades, { UbicacionPunto } from './MapaUbicacionActividades';
+import MapaUbicacionActividades, { UbicacionMapaItem } from './MapaUbicacionActividades';
 import { getUbicacionActividadParaMapa } from '@/services/api/private/metas/graphics/graphicsService';
 import YearSelector from '@/components/Common/YearSelector';
 
@@ -13,10 +13,10 @@ const UbicacionActividadScreen = () => {
   
   const navigation = useNavigate();
 
-  const availableYears = [2023, 2024,2025,2026];
+  // const availableYears = [2023, 2024,2025,2026];
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
-  const [ubicaciones, setUbicaciones] = useState<UbicacionPunto[]>([]);
+  const [ubicaciones, setUbicaciones] = useState<UbicacionMapaItem[]>([]);
 
 
   useEffect(() => {

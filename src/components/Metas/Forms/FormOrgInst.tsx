@@ -6,7 +6,7 @@ import Table from 'react-bootstrap/Table';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Swal from 'sweetalert2';
 import { Actividad, Institucione } from '@/types/ActivityProps';
-import { getInstituciones } from '@/services/api/private/metas';
+// import { getInstituciones } from '@/services/api/private/metas';
 import { handleSearch } from '@/services/api/public/geoloc/geolocationService';
 
 interface Props {
@@ -19,7 +19,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 	const [arrayInstitucion, setArrayInstitucion] = useState<Institucione[]>(
 		activity.listaInstituciones || [],
 	);
-	const [arraySearchInstitucion, setArraySearchInstitucion] = useState<Institucione[]>([]);
+	//const [arraySearchInstitucion, setArraySearchInstitucion] = useState<Institucione[]>([]);
 
 	const [name, setName] = useState('');
 	const [ubicacion, setUbicacion] = useState('');
@@ -179,12 +179,12 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 		}
 	};
 
-	const filterInstitucion = (data: Institucione[]) => {
+	/*const filterInstitucion = (data: Institucione[]) => {
 		const newData = data.filter((inst) => inst.ubicacion !== 'NULL');
 		return newData;
-	};
+	};*/
 
-	useEffect(() => {
+	/*useEffect(() => {
 		let debounce: ReturnType<typeof setTimeout>;
 
 		const fetchData = (searchName?: string) => {
@@ -201,7 +201,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 
 		return () => clearTimeout(debounce);
 	}, [name]);
-
+	*/
 	const handleInstChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setName(e.currentTarget.value);
 
@@ -236,7 +236,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 		return urlPattern.test(url);
 	};
 
-	const AlertBuscarUbicaciones = () => {
+	/*const AlertBuscarUbicaciones = () => {
 		Swal.fire({
 			title: 'Ubicaciones',
 			html: `
@@ -255,7 +255,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 			confirmButtonText: 'Cerrar',
 			width: '80%',
 		});
-	};
+	};*/
 
 
 	const isValidCoordinates = (coord: string) => {

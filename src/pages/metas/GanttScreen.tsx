@@ -8,7 +8,7 @@ import YearSelector from '@/components/Common/YearSelector';
 const GanttScreen = () => {
 
   const navigation = useNavigate();
-  const availableYears = [2023, 2024,2025,2026];
+  // const availableYears = [2023, 2024,2025,2026];
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
   return (

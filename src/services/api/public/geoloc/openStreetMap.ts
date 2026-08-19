@@ -44,8 +44,8 @@ export async function openStreetMapSearch(
     const result = results[0];
 
     return {
-      latitud: Number(result.lat),
-      longitud: Number(result.lon)
+      latitud: result.lat,
+      longitud: result.lon
     };
 
   } catch (error) {

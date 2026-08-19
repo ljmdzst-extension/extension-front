@@ -314,8 +314,8 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
 
         setBuscando(true);
 
-        let finalLat: string | undefined = undefined;
-        let finalLng: string | undefined = undefined;
+        let finalLat: number | undefined = undefined;
+        let finalLng: number | undefined = undefined;
         let finalEnlace = '';
 
         if (modoUbicacion === 'direccion') {
@@ -339,8 +339,8 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
             });
 
             if (result) {
-                finalLat = result.latitud;
-                finalLng = result.longitud;
+                finalLat = parseFloat(result.latitud);
+                finalLng = parseFloat(result.longitud);
                 finalEnlace = `https://www.google.com/maps?q=${finalLat},${finalLng}`;
             } else {
                 Swal.fire({

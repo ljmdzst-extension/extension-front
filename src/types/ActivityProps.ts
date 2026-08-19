@@ -63,7 +63,7 @@ export interface Meta {
 	resultado: string;
 	observaciones: string;
 	valoracion: number;
-	nombreValoracion: string;
+	nombreValoracion?: string;
 }
 
 export interface Ubicacione {
