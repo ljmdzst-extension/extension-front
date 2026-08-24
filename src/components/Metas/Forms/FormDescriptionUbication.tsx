@@ -8,6 +8,7 @@ import { ContentCopy, Edit, Delete, Save } from '@mui/icons-material';
 import { textLimitError } from '@/utils/validacionesForms';
 import { Actividad, Ubicacione } from '@/types/ActivityProps';
 import { handleSearch } from '@/services/api/public/geoloc/geolocationService';
+import { ubicacionesPredefinidas, UbicacionPredefinida } from './UbicacionesPreDefinidas';
 
 interface Props {
     activity: Actividad;
@@ -15,89 +16,6 @@ interface Props {
 }
 
 
-interface UbicacionPredefinida {
-    descripcion: string;
-    direccion: string;
-    ciudad: string;
-    provincia: string;
-    departamento: string;
-    pais: string;
-    latitud: number;
-    longitud: number;
-}
-
-const ubicacionesPredefinidas: UbicacionPredefinida[] = [
-    {
-        descripcion: 'FADU',
-        direccion: 'Ruta Nacional 168',
-        ciudad: 'Santa Fe',
-        provincia: 'Santa Fe',
-        departamento: 'La Capital',
-        pais: 'Argentina',
-        latitud: -31.640231204824136,
-        longitud: -60.67352352275283,
-    },
-    {
-        descripcion: 'FHUC',
-        direccion: 'Ruta Nacional 168',
-        ciudad: 'Santa Fe',
-        provincia: 'Santa Fe',
-        departamento: 'La Capital',
-        pais: 'Argentina',
-        latitud: -31.640318536239345,
-        longitud: -60.67366288619337,
-    },
-    {
-        descripcion: 'FICH',
-        direccion: 'Ruta Nacional 168',
-        ciudad: 'Santa Fe',
-        provincia: 'Santa Fe',
-        departamento: 'La Capital',
-        pais: 'Argentina',
-        latitud: -31.63990524713487,
-        longitud: -60.67210683522049,
-    },
-    {
-        descripcion: 'FBCB',
-        direccion: 'Ruta Nacional 168',
-        ciudad: 'Santa Fe',
-        provincia: 'Santa Fe',
-        departamento: 'La Capital',
-        pais: 'Argentina',
-        latitud: -31.639897918296633, 
-        longitud: -60.67281315126916,
-    },
-    {
-        descripcion: 'ISM',
-        direccion: 'Ruta Nacional 168',
-        ciudad: 'Santa Fe',
-        provincia: 'Santa Fe',
-        departamento: 'La Capital',
-        pais: 'Argentina',
-        latitud: -31.640350804771288, 
-        longitud: -60.67408842134198,
-    },
-    {
-        descripcion: 'FCM',
-        direccion: 'Ruta Nacional 168',
-        ciudad: 'Santa Fe',
-        provincia: 'Santa Fe',
-        departamento: 'La Capital',
-        pais: 'Argentina',
-        latitud: -31.639720282731595,
-        longitud: -60.670574685948985,
-    },
-    {
-        descripcion: 'FCJS',
-        direccion: 'Candido Pujato 2751',
-        ciudad: 'Santa Fe',
-        provincia: 'Santa Fe',
-        departamento: 'La Capital',
-        pais: 'Argentina',
-        latitud: -31.63435415364758, 
-        longitud: -60.70505958802472
-    }
-];
 
 // Función de validación de coordenadas (Latitud, Longitud)
 const isValidCoordinates = (coord: string) => {
@@ -169,7 +87,7 @@ const UbicacionesList = ({
                                 <td>
                                     {mapUrl !== '#' ? (
                                         <a href={mapUrl} target='_blank' rel='noopener noreferrer'>
-                                            {item.ciudad ? `${item.direccion}, ${item.ciudad}, ${item.provincia}, ${item.departamento}` : 'Ver en Mapa'}
+                                            {item.ciudad ? `${item.direccion}, ${item.ciudad}, ${item.departamento}, ${item.provincia}` : 'Ver en Mapa'}
                                         </a>
                                     ) : (
                                         <span className='text-muted'>Sin coordenadas</span>
@@ -258,7 +176,7 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
     };
 
     const seleccionarUbicacionPredefinida = (
-    ubicacion: UbicacionPredefinida
+        ubicacion: UbicacionPredefinida
     ) => {
         setUbicacionDescripcion(ubicacion.descripcion);
         setDireccion(ubicacion.direccion);
@@ -271,17 +189,17 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
         );
 
         const nuevaUbicacion: Ubicacione = {
-                idUbicacion: 0,
-                desc: ubicacion.descripcion,
-                enlace: `https://www.google.com/maps?q=${ubicacion.latitud},${ubicacion.longitud}`,
-                direccion: ubicacion.direccion,
-                ciudad: ubicacion.ciudad,
-                provincia: ubicacion.provincia,
-                departamento: ubicacion.departamento,
-                latitud: String(ubicacion.latitud),
-                longitud: String(ubicacion.longitud),
-                radio: tipoForma === 'circunferencia' ? parseFloat(radio) : 0,
-            };
+            idUbicacion: 0,
+            desc: ubicacion.descripcion,
+            enlace: `https://www.google.com/maps?q=${ubicacion.latitud},${ubicacion.longitud}`,
+            direccion: ubicacion.direccion,
+            ciudad: ubicacion.ciudad,
+            provincia: ubicacion.provincia,
+            departamento: ubicacion.departamento,
+            latitud: String(ubicacion.latitud),
+            longitud: String(ubicacion.longitud),
+            radio: tipoForma === 'circunferencia' ? parseFloat(radio) : 0,
+        };
 
         setUbicaciones((prev) => [...prev, nuevaUbicacion]);
 
@@ -605,10 +523,10 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
                     {modoUbicacion === 'coordenadas' && (
                         <Row className='g-3 mb-3'>
                             <div className='d-flex justify-content-between align-items-center mb-3'>
-                        <Button variant='info' size='sm' onClick={mostrarAlertaAyudaCoordenadas}>
-                            ¿Cómo obtener coordenadas?
-                        </Button>
-                    </div>
+                                <Button variant='info' size='sm' onClick={mostrarAlertaAyudaCoordenadas}>
+                                    ¿Cómo obtener coordenadas?
+                                </Button>
+                            </div>
                             <Col md={12}>
                                 <Form.Group controlId='coordsGps'>
                                     <Form.Label>Latitud, Longitud</Form.Label>
@@ -644,16 +562,16 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
                 </div>
 
             </>
-        )}
+            )}
 
 
 
-        {!crearUbicacion && (
-            <>
-                <h3 className='mb-3'>Lista de Ubicaciones</h3>
-                <UbicacionesList ubicaciones={ubicaciones} eliminarUbicacion={eliminarUbicacion} />
-            </>
-        )}
+            {!crearUbicacion && (
+                <>
+                    <h3 className='mb-3'>Lista de Ubicaciones</h3>
+                    <UbicacionesList ubicaciones={ubicaciones} eliminarUbicacion={eliminarUbicacion} />
+                </>
+            )}
 
         </>
     );
