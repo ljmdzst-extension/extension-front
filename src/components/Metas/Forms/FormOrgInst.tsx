@@ -22,7 +22,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 	//const [arraySearchInstitucion, setArraySearchInstitucion] = useState<Institucione[]>([]);
 
 	const [autoCompletadoInstituciones, setAutoCompletadoInstituciones] = useState<Institucione[]>([]);
-	const idTimerRef = useRef(null);
+	const idTimerRef = useRef<any>(null);
 
 	const [name, setName] = useState('');
 	const [ubicacion, setUbicacion] = useState('');
