@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useRef } from 'react';
 import Button from 'react-bootstrap/Button';
 import { Row, Col,ToggleButtonGroup, ToggleButton } from 'react-bootstrap';
 import { Form } from 'react-bootstrap';
@@ -6,7 +6,7 @@ import Table from 'react-bootstrap/Table';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Swal from 'sweetalert2';
 import { Actividad, Institucione } from '@/types/ActivityProps';
-// import { getInstituciones } from '@/services/api/private/metas';
+import { getInstitucionesByName } from '@/services/api/private/metas';
 import { handleSearch } from '@/services/api/public/geoloc/geolocationService';
 
 interface Props {
@@ -20,6 +20,9 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 		activity.listaInstituciones || [],
 	);
 	//const [arraySearchInstitucion, setArraySearchInstitucion] = useState<Institucione[]>([]);
+
+	const [autoCompletadoInstituciones, setAutoCompletadoInstituciones] = useState<Institucione[]>([]);
+	const idTimerRef = useRef(null);
 
 	const [name, setName] = useState('');
 	const [ubicacion, setUbicacion] = useState('');
@@ -49,6 +52,23 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 		let finalCoordenadas = coordenadas;
 		let latitud = '';
 		let longitud = '';
+
+
+		const duplicatedName = arrayInstitucion.some(
+			(inst) => inst.nom.toLowerCase() === name.toLowerCase()
+		);
+
+		if(duplicatedName){
+			Swal.fire({
+				title: 'Error',
+				text: 'El nombre de la institución ya existe en la lista.',
+				icon: 'error',
+				confirmButtonText: 'Cerrar',
+			});
+			setGuardando(false);
+			return;
+		}
+
 		
 
 		if (modoUbicacion === 'direccion' && ubicacion.trim() === '') {
@@ -205,6 +225,8 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 	const handleInstChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setName(e.currentTarget.value);
 
+
+
 		/*const selectedInstitution = arraySearchInstitucion.find(
 			(inst) => inst.nom === e.currentTarget.value,
 		);
@@ -230,6 +252,52 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 			}
 		}*/
 	};
+
+
+
+	useEffect(() => {
+
+
+		const fetchInstituciones = async () => {
+
+			try {
+				const data = await getInstitucionesByName(name);
+				setAutoCompletadoInstituciones(data.data);
+
+			} catch (error) {
+				console.error('Error fetching instituciones:', error);
+			}
+
+		}
+		if (name.trim() === '') {
+			setAutoCompletadoInstituciones([]);
+			return;
+		}
+
+		if (idTimerRef.current) {
+			clearTimeout(idTimerRef.current);
+		}
+
+
+		if(name.trim().length < 3){  // esto lo hacemos para que al principio lo muestre más rápido, y luego si sigue escribiendo que espere un poco más
+
+			idTimerRef.current = setTimeout( () => {
+				console.log('Fetching instituciones for name:', name);
+				fetchInstituciones();
+			}, 150);
+
+		} else {
+
+			idTimerRef.current = setTimeout( () => {
+				console.log('Fetching instituciones for name:', name);
+				fetchInstituciones();
+			}, 520);
+		}
+		
+	
+	}, [name])
+	
+
 
 	const isUrlValid = (url: string) => {
 		const urlPattern = /^(ftp|http|https):\/\/[^ "]+$/;
@@ -269,6 +337,36 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 		return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
 	}
 
+
+	const seleccionarInstitucionPredefinida = (inst: Institucione) => {
+
+
+		const isDuplicate = arrayInstitucion.some(
+			(existingInst) => existingInst.nom.toLowerCase() === inst.nom.toLowerCase()
+		);
+
+		if (isDuplicate) {
+			Swal.fire({
+				title: 'Error',
+				text: 'La institución ya existe en la lista.',
+				icon: 'error',
+				confirmButtonText: 'Cerrar',
+			});
+			return;
+		}
+
+		setArrayInstitucion((prev) => [...prev, inst]);
+
+		setName('');
+		setDireccion('');
+		setCiudad('Santa Fe');
+		setProvincia('Santa Fe');
+		setDepartamento('La Capital');
+		setCoordenadas('');
+		setUbicacion('');
+		setCrearInstitucion(false);
+		
+	}
 
 	return (
 			
@@ -311,10 +409,10 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 										value={name}
 										placeholder='Nombre de la institución'
 										onChange={handleInstChange}
+										autoComplete='off' // Desactiva el historial de autocompletado del navegador
 										//list='listSearchInstituciones'
 
 									/>
-
 									{/*<datalist id='listSearchInstituciones'>
 										{arraySearchInstitucion?.map((inst, i) => (
 											<option key={i} value={inst.nom ?? '#'}>
@@ -322,9 +420,30 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 											</option>
 										))}
 									</datalist>
-
-
 									*/}
+
+									<div className='mt-2'>
+
+										{ autoCompletadoInstituciones.length > 0 && 
+										<Form.Label className='text-muted mb-1'>
+											<small>Autocompletado directo de instituciones</small>
+										</Form.Label>
+										}
+										<div className='d-flex flex-wrap gap-2'>
+											{autoCompletadoInstituciones.map((inst) => (
+												<Button
+													key={inst.idInstitucion}
+														variant='outline-primary'
+														size='sm'
+														onClick={() =>
+														seleccionarInstitucionPredefinida(inst)
+											}
+											>
+											{inst.nom}
+												</Button>
+											))}
+										</div>
+									</div>
 								</Form.Group>
 								
 							</Col>
@@ -471,6 +590,15 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 								</tr>
 							</thead>
 							<tbody>
+
+								{arrayInstitucion.length === 0 && (
+									<tr>
+										<td colSpan={5} className="text-center">
+											No hay instituciones registradas.
+										</td>
+									</tr>
+								)}
+
 								{arrayInstitucion.map((item, index) => (
 									<tr key={index}>
 										<td>{index + 1}</td>

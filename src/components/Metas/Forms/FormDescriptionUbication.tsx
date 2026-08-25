@@ -37,7 +37,7 @@ const UbicacionesList = ({
     ubicaciones: Ubicacione[];
     eliminarUbicacion: (index: number) => void;
 }) => (
-    <div style={{ maxHeight: '220px', overflowY: 'auto' }} className='mt-3 custom-scrollbar'>
+    <div style={{ overflowY: 'auto' }} className='mt-3 custom-scrollbar'>
         <Table striped bordered hover responsive size='sm'>
             <thead>
                 <tr>
@@ -178,16 +178,20 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
     const seleccionarUbicacionPredefinida = (
         ubicacion: UbicacionPredefinida
     ) => {
-        setUbicacionDescripcion(ubicacion.descripcion);
-        setDireccion(ubicacion.direccion);
-        setCiudad(ubicacion.ciudad);
-        setProvincia(ubicacion.provincia);
-        setDepartamento(ubicacion.departamento);
+        
+        
 
-        setCoordenadas(
-            `${ubicacion.latitud}, ${ubicacion.longitud}`
-        );
+        const repitedValue = ubicaciones.some((u) =>u.desc.toLowerCase() === ubicacion.descripcion.toLowerCase());
 
+        if (repitedValue) {
+            Swal.fire({
+                title: 'Error',
+                text: 'La ubicación ya existe en la lista.',
+                icon: 'error',
+                confirmButtonText: 'Cerrar',
+            });
+            return;
+        }
         const nuevaUbicacion: Ubicacione = {
             idUbicacion: 0,
             desc: ubicacion.descripcion,
@@ -213,6 +217,18 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
             Swal.fire({
                 title: 'Error',
                 text: 'Debe ingresar una descripción para la ubicación.',
+                icon: 'error',
+                confirmButtonText: 'Cerrar',
+            });
+            return;
+        }
+        
+        const repitedValue = ubicaciones.some((u) =>u.desc.toLowerCase() === ubicacionDescripcion.toLowerCase());
+
+        if (repitedValue) {
+            Swal.fire({
+                title: 'Error',
+                text: 'La ubicación ya existe en la lista.',
                 icon: 'error',
                 confirmButtonText: 'Cerrar',
             });
