@@ -75,7 +75,7 @@ const AutoFitBounds: React.FC<{ points: [number, number][] }> = ({ points }) => 
 
 export const MapaUbicacionActividades: React.FC<Props> = ({
     ubicaciones,
-    height = '380px',
+    height = '70vh',
 }) => {
     const elementosValidos = ubicaciones
         .map((item) => {

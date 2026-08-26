@@ -16,6 +16,8 @@ const InstitutionsScreen = () => {
   const [instituciones, setInstituciones] = useState<InstitucionPunto[]>([]);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
+  const [showDistritos, setShowDistritos] = useState<boolean>(false);
+
 
   useEffect(() => {
     const fetchInstituciones = async () => {
@@ -54,7 +56,18 @@ const InstitutionsScreen = () => {
         <div className='d-flex justify-content-center align-items-center m-2'>
           <YearSelector year={selectedYear} onYearChange={setSelectedYear} />
         </div>          
-        <MostradorMapaInstituciones instituciones={instituciones} />
+
+        <button
+          onClick={() => setShowDistritos((prev) => !prev)}
+          style={{ zIndex: 1000 }}
+          className="absolute top-3 right-3 bg-white text-gray-800 text-xs font-semibold px-3 py-1.5 rounded shadow border border-gray-300 hover:bg-gray-100 transition-colors cursor-pointer"
+          title="Alternar capa de distritos"
+        >
+          {showDistritos ? 'Ocultar Distritos' : 'Mostrar Distritos'}
+        </button>
+
+
+        <MostradorMapaInstituciones instituciones={instituciones} mostrarDistritos={showDistritos} />
       </div>
     </div>
   );

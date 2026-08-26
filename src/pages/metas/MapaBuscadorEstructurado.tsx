@@ -1,7 +1,10 @@
-import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import React, { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, GeoJSON, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+
+// Importación del archivo GeoJSON con los distritos
+import distritosSantaFeData from './geojson.json';
 
 // Fix de íconos predeterminados de Leaflet
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -15,7 +18,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-// Estructura de la institución (ajusta según tus types)
 export interface InstitucionPunto {
   idActividad?: number | string;
   actividadNombre?: string;
@@ -28,10 +30,6 @@ export interface InstitucionPunto {
   longitud?: string | number;
 }
 
-interface Props {
-  instituciones: InstitucionPunto[];
-  height?: string;
-}
 
 const DEFAULT_CENTER: [number, number] = [-31.6333, -60.7000]; // Santa Fe, Argentina
 
@@ -47,7 +45,6 @@ const PALETA_COLORES: string[] = [
     '#689f38', '#afb42b', '#fbc02d', '#ffa000', '#f57c00', '#e64a19'
 ];
 
-
 const obtenerColorActividad = (key?: string | number): string => {
     if (!key) return '#0d6efd';
     const str = String(key);
@@ -58,7 +55,6 @@ const obtenerColorActividad = (key?: string | number): string => {
     const index = Math.abs(hash) % PALETA_COLORES.length;
     return PALETA_COLORES[index];
 };
-
 
 const crearIconoMarcador = (color: string) => {
     const svgIcon = `
@@ -77,23 +73,38 @@ const crearIconoMarcador = (color: string) => {
     });
 };
 
-// Componente para reajustar el zoom y centrado cuando hay múltiples marcadores
-const AutoFitBounds: React.FC<{ points: [number, number][] }> = ({ points }) => {
+const AutoFitBounds: React.FC<{ points: [number, number][]}> = ({ points }) => {
   const map = useMap();
 
+  const ultimosPuntosRef = React.useRef<string>('');
+
   useEffect(() => {
-    if (points.length > 0) {
-      const bounds = L.latLngBounds(points);
+    if (points.length  == 0) return;
+
+    const puntosString = JSON.stringify(points);
+    if (ultimosPuntosRef.current === puntosString) {
+      console.log('Los puntos no han cambiado, no se ajusta el mapa.');
+      return;
+    }
+
+   const bounds = L.latLngBounds(points);
+    if (bounds.isValid()) {
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
+      ultimosPuntosRef.current = puntosString; // Guardamos las coordenadas aplicadas
     }
   }, [points, map]);
 
   return null;
 };
 
-export const MostradorMapaInstituciones: React.FC<Props> = ({
+export const MostradorMapaInstituciones = ({
   instituciones,
-  height = '450px',
+  height = '70vh',
+  mostrarDistritos = true,
+}:{ 
+  instituciones: InstitucionPunto[];
+  height?: string;
+  mostrarDistritos?: boolean;
 }) => {
   // Filtrar y parsear solo los puntos que tienen coordenadas válidas
   const puntosValidos = instituciones
@@ -110,8 +121,25 @@ export const MostradorMapaInstituciones: React.FC<Props> = ({
 
   const coordsList: [number, number][] = puntosValidos.map((p) => [p.lat, p.lng]);
 
-  const initialCenter: [number, number] =
-    coordsList.length > 0 ? coordsList[0] : DEFAULT_CENTER;
+  const initialCenter: [number, number] = coordsList.length > 0 ? coordsList[0] : DEFAULT_CENTER;
+
+  // Estilo para cada polígono de distrito respetando las propiedades del GeoJSON
+  const estiloDistrito = (feature: any) => {
+    return {
+      color: feature?.properties?.stroke || '#2b5c8f',
+      weight: feature?.properties?.['stroke-width'] || 2,
+      opacity: feature?.properties?.['stroke-opacity'] || 0.8,
+      fillColor: feature?.properties?.fill || '#2b5c8f',
+      fillOpacity: feature?.properties?.['fill-opacity'] || 0.25,
+    };
+  };
+
+  // Popup con el nombre del distrito al hacer clic o sobrevolar
+  const alCadaDistrito = (feature: any, layer: L.Layer) => {
+    if (feature?.properties?.name) {
+      layer.bindPopup(`<strong>${feature.properties.name}</strong>`);
+    }
+  };
 
   return (
     <div
@@ -129,28 +157,32 @@ export const MostradorMapaInstituciones: React.FC<Props> = ({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
+        {/* Capa de Distritos de Santa Fe */}
+        {mostrarDistritos && (
+          <GeoJSON
+            data={distritosSantaFeData as any}
+            style={estiloDistrito}
+            onEachFeature={alCadaDistrito}
+            filter={(feature) => feature.geometry.type !== 'Point'} // Muestra solo polígonos
+          />
+        )}
+        
+        
         {/* Ajusta automáticamente la vista del mapa a todos los marcadores */}
         <AutoFitBounds points={coordsList} />
-
+      
         {/* Renderizar cada marcador */}
-        {puntosValidos.map((item, index) => { 
+        {puntosValidos.map((item, index) => {
+          const idActividad = item.idActividad || item.actividadNombre || index;
+          const colorActividad = obtenerColorActividad(idActividad);
+          const iconoMarcador = crearIconoMarcador(colorActividad);
 
-
-
-                    // Determinar el color según la actividad
-            const idActividad = item.idActividad || item.actividadNombre || index;
-            const colorActividad = obtenerColorActividad(idActividad);
-            console.log('Color para actividad', idActividad, colorActividad);
-            const iconoMarcador = crearIconoMarcador(colorActividad);
-
-
-          return ( 
+          return (
             <Marker
               key={item.idInstitucion || `${item.nom}-${index}`}
               position={[item.lat, item.lng]}
-              icon ={iconoMarcador}
+              icon={iconoMarcador}
             >
-
               <Popup>
                 <div className="text-sm">
                   <strong className="text-blue-600">{item.nom}</strong>
@@ -165,12 +197,11 @@ export const MostradorMapaInstituciones: React.FC<Props> = ({
                     </div>
                   )}
 
-
-                   {item.actividadNombre && (
-                                            <div className="fw-semibold small mb-2 mt-2 text-dark">
-                                                Actividad: {item.actividadNombre}
-                                            </div>
-                                        )}
+                  {item.actividadNombre && (
+                    <div className="fw-semibold small mb-2 mt-2 text-dark">
+                      Actividad: {item.actividadNombre}
+                    </div>
+                  )}
                   <hr className="my-1" />
                   <a
                     href={`https://www.google.com/maps?q=${item.lat},${item.lng}`}
@@ -183,7 +214,8 @@ export const MostradorMapaInstituciones: React.FC<Props> = ({
                 </div>
               </Popup>
             </Marker>
-        )})}
+          );
+        })}
       </MapContainer>
     </div>
   );
