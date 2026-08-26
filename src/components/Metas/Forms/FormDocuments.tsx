@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { Form } from 'react-bootstrap';
-import Table from 'react-bootstrap/Table';
+import {Table} from 'react-bootstrap';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Actividad, Enlace } from '@/types/ActivityProps';
 

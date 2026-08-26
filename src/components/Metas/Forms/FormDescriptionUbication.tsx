@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
+import {InputGroup} from 'react-bootstrap';
 import Swal from 'sweetalert2';
 import { Row, Col, ToggleButtonGroup, ToggleButton, Table } from 'react-bootstrap';
 import { ContentCopy, Edit, Delete, Save } from '@mui/icons-material';
@@ -427,7 +427,7 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
                                 type='radio'
                                 name='tipoForma'
                                 value={tipoForma}
-                                onChange={(val) => {
+                                onChange={(val: 'punto' | 'circunferencia') => {
                                     setTipoForma(val);
                                     if (val === 'punto') setRadio('0');
                                 }}
@@ -468,7 +468,7 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
                                 type='radio'
                                 name='modoUbicacion'
                                 value={modoUbicacion}
-                                onChange={(val) => setModoUbicacion(val)}
+                                onChange={(val:'direccion' | 'coordenadas') => setModoUbicacion(val)}
                                 className='w-100'
                             >
                                 <ToggleButton id='tbtn-dir-ub' value={'direccion'} variant='outline-primary'>

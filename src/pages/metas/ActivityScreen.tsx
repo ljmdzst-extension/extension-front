@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
-import ListGroup from 'react-bootstrap/ListGroup';
+import {ListGroup} from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
-import Modal from 'react-bootstrap/Modal';
+import {Modal} from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/redux/store';

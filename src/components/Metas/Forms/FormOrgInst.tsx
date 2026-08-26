@@ -2,7 +2,7 @@ import React, { useEffect, useState,useRef } from 'react';
 import Button from 'react-bootstrap/Button';
 import { Row, Col,ToggleButtonGroup, ToggleButton } from 'react-bootstrap';
 import { Form } from 'react-bootstrap';
-import Table from 'react-bootstrap/Table';
+import {Table} from 'react-bootstrap';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Swal from 'sweetalert2';
 import { Actividad, Institucione } from '@/types/ActivityProps';
@@ -30,7 +30,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 	const [guardando, setGuardando] = useState(false);
 	const [crearInstitucion, setCrearInstitucion] = useState(false);
 
-	const [modoUbicacion, setModoUbicacion] = useState('direccion');
+	const [modoUbicacion, setModoUbicacion] = useState<'direccion' | 'coordenadas'>('direccion');
 
 	const [direccion, setDireccion] = useState('');
 	const [ciudad, setCiudad] = useState('Santa Fe');
@@ -457,7 +457,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 									type="radio"
 									name="modoUbicacion"
 									value={modoUbicacion}
-									onChange={(val) => setModoUbicacion(val)}
+									onChange={(val:'direccion' | 'coordenadas') => setModoUbicacion(val)}
 									className="w-100"
 								>
 									<ToggleButton id="tbtn-dir" value={'direccion'} variant="outline-primary">

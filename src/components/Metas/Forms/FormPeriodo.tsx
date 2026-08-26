@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import es from 'date-fns/locale/es';
-import ListGroup from 'react-bootstrap/ListGroup';
+import {ListGroup} from 'react-bootstrap';
 import { Col, Row } from 'react-bootstrap';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import { Actividad, FechasPuntuale } from '@/types/ActivityProps';

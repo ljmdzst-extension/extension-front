@@ -2,9 +2,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Col from 'react-bootstrap/Col';
-import ListGroup from 'react-bootstrap/ListGroup';
-import Row from 'react-bootstrap/Row';
-import Tab from 'react-bootstrap/Tab';
+import {ListGroup} from 'react-bootstrap';
+import {Row} from 'react-bootstrap';
+import {Tab} from 'react-bootstrap';
 import { Button, Card, Image } from 'react-bootstrap';
 import LoadingSpinner from '@/components/Common/Spinner/LoadingSpinner';
 import useAlert from '@/hooks/useAlert';
