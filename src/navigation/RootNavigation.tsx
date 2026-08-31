@@ -48,8 +48,8 @@ const RootNavigation = () => {
 					<Route path='admin' element={<AdminScreen />} />
 					<Route path='metas' element={<MainScreen />} />
 					<Route path='gantt' element={<GanttScreen />} />
-					<Route path='instituciones' element={<InstitutionsScreen />} />
-					<Route path='ubicaciones' element={<UbicacionActividadScreen />} />
+					<Route path='instituciones/:year' element={<InstitutionsScreen />} />
+					<Route path='ubicaciones/:year' element={<UbicacionActividadScreen />} />
 					<Route path='seleccionar-grafica' element={<SelectGraphicsScreen />} />
 
 					<Route path='metas/graficas' element={<GraphicsScreen />} />

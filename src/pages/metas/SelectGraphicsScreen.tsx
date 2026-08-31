@@ -10,6 +10,8 @@ import { Container, Row, Col, Card } from 'react-bootstrap';
 const SelectGraphicsScreen = () => {
     const navigation = useNavigate();
 
+    const currentYear = new Date().getFullYear();
+
     const options = [
         {
             title: 'Gráficos y Resúmenes',
@@ -27,13 +29,13 @@ const SelectGraphicsScreen = () => {
             title: 'Instituciones',
             description: 'Visualizar la ubicación de las instituciones registradas',
             icon: <AccountBalanceIcon style={{ fontSize: '2.5rem', color: '#0a5d52' }} />,
-            path: '/gestion/instituciones',
+            path: '/gestion/instituciones/' + currentYear,
         },
         {
             title: 'Ubicaciones por Año',
             description: 'Mapa de actividades anuales',
             icon: <PlaceIcon style={{ fontSize: '2.5rem', color: '#0a5d52' }} />,
-            path: '/gestion/ubicaciones',
+            path: '/gestion/ubicaciones/' + currentYear,
         },
     ];
 

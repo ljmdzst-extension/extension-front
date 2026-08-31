@@ -71,13 +71,34 @@ export const getGraphicsDataGantt = async (anio?: number): Promise<GraphicsRespo
 }
 
 
-export const getInstitucionesParaMapa = async ({anio}:{anio:number}): Promise<GraphicsResponse> => {
+export const getAreas = async ({anio}:{anio:number}): Promise<GraphicsResponse> => {
+	try {
+		let path = `metas/areas/porAnio/${anio}`;
+		const response = await privateAxiosInstance.get<GraphicsResponse>(
+			path,
+		);
+		// console.log('Response from getAreas:', response.data); // Log the response data
+		return response.data;
+	} catch (error) {
+		if (axios.isAxiosError(error) && error.response &&	error.response.data.error) {
+			throw new Error(error.response.data.error);
+		}
+		else {
+			throw new Error('An unexpected error occurred');
+		}
+	}
+}
+
+
+		
+
+export const getInstitucionesParaMapa = async ({anio,area}:{anio:number,area:number | undefined}): Promise<GraphicsResponse> => {
 	try {
 		const response = await privateAxiosInstance.get<GraphicsResponse>(
-			`${basePath}/instituciones/${anio}`,
+			`${basePath}/instituciones/${anio}?area=${area}`,
 		);
 
-		console.log('Response from getInstituciones:', response.data); // Log the response data
+		// console.log('Response from getInstituciones:', response.data); // Log the response data
 		return response.data;
 	} catch (error) {
 		if (
@@ -94,12 +115,13 @@ export const getInstitucionesParaMapa = async ({anio}:{anio:number}): Promise<Gr
 }
 
 
-export const getUbicacionActividadParaMapa = async (anio?: number): Promise<GraphicsResponse> => {
+export const getUbicacionActividadParaMapa = async ({anio,area}:{anio: number,area:number | undefined}): Promise<GraphicsResponse> => {
 	try {
+
 		const response = await privateAxiosInstance.get<GraphicsResponse>(
-			`${basePath}/ubicaciones/${anio}`,
+			`${basePath}/ubicaciones/${anio}?area=${area}`,
 		);
-		console.log('Response from getUbicacionActividadParaMapa:', response.data); // Log the response data
+		// console.log('Response from getUbicacionActividadParaMapa:', response.data); // Log the response data
 		return response.data;
 	}
 	catch (error) {

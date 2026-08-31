@@ -83,7 +83,6 @@ const AutoFitBounds: React.FC<{ points: [number, number][]}> = ({ points }) => {
 
     const puntosString = JSON.stringify(points);
     if (ultimosPuntosRef.current === puntosString) {
-      console.log('Los puntos no han cambiado, no se ajusta el mapa.');
       return;
     }
 
@@ -146,6 +145,13 @@ export const MostradorMapaInstituciones = ({
       style={{ height, width: '100%', position: 'relative' }}
       className="rounded-lg overflow-hidden border border-gray-300 shadow-sm"
     >
+
+
+       {puntosValidos.length === 0 && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow text-center">
+            <p className="text-gray-700">No hay instituciones con coordenadas válidas para mostrar en el area y año seleccionados.</p>
+          </div>
+        )}
       <MapContainer
         center={initialCenter}
         zoom={13}
