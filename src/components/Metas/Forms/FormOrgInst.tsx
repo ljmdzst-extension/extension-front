@@ -33,7 +33,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 	const [modoUbicacion, setModoUbicacion] = useState<'direccion' | 'coordenadas'>('direccion');
 
 	const [direccion, setDireccion] = useState('');
-	const [ciudad, setCiudad] = useState('Santa Fe');
+	const [ciudad, setCiudad] = useState('Santa Fe Capital');
 	const [provincia, setProvincia] = useState('Santa Fe');
 
 	const [departamento, setDepartamento] = useState('La Capital');
@@ -359,7 +359,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 
 		setName('');
 		setDireccion('');
-		setCiudad('Santa Fe');
+		setCiudad('Santa Fe Capital');
 		setProvincia('Santa Fe');
 		setDepartamento('La Capital');
 		setCoordenadas('');
@@ -490,7 +490,7 @@ export default function FormOrgInst( { activity, saveData }: Props ) {
 											<Form.Label>Ciudad / Localidad</Form.Label>
 											<Form.Control
 												type='text'
-												placeholder='Ej: Santa Fe'
+												placeholder='Ej: Santa Fe Capital'
 												value={ciudad}
 												onChange={(e) => setCiudad(e.target.value)}
 											/>

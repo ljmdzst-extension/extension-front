@@ -1,7 +1,7 @@
 import { georefSearch, AddressData,Coordinates } from './geoRef';
 import {openStreetMapSearch} from './openStreetMap';
 
-export async function handleSearch(data: AddressData): Promise<Coordinates> {
+export async function handleSearch(data: AddressData): Promise<Coordinates | null> {
   // Primero intentamos con Georef
   try {
     const georefResult = await georefSearch(data);
@@ -41,10 +41,5 @@ export async function handleSearch(data: AddressData): Promise<Coordinates> {
     console.error("OpenStreetMap falló:", error);
   }
 
-
-
-
-  throw new Error(
-    "No se pudo obtener la ubicación para la dirección indicada."
-  );
+  return null;
 }

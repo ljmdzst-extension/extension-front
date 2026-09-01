@@ -142,7 +142,7 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
 
     // Campos modo dirección
     const [direccion, setDireccion] = useState<string>('');
-    const [ciudad, setCiudad] = useState<string>('Santa Fe');
+    const [ciudad, setCiudad] = useState<string>('Santa Fe Capital');
     const [provincia, setProvincia] = useState<string>('Santa Fe');
     const [departamento, setDepartamento] = useState<string>('La Capital');
 
@@ -167,7 +167,7 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
     const resetFormUbicacion = () => {
         setUbicacionDescripcion('');
         setDireccion('');
-        setCiudad('Santa Fe');
+        setCiudad('Santa Fe Capital');
         setProvincia('Santa Fe');
         setDepartamento('La Capital');
         setCoordenadas('');
@@ -501,7 +501,7 @@ const FormDescriptionUbication: React.FC<Props> = ({ activity, saveData }) => {
                                         <Form.Label>Ciudad / Localidad</Form.Label>
                                         <Form.Control
                                             type='text'
-                                            placeholder='Ej: Santa Fe'
+                                            placeholder='Ej: Santa Fe Capital'
                                             value={ciudad}
                                             onChange={(e) => setCiudad(e.target.value)}
                                         />
