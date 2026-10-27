@@ -147,6 +147,14 @@ export default function FormArSecUU({ activity, saveData }: Props) {
 			value: sippeSeleccionadas,
 			onChange: setSippeSeleccionadas,
 		},
+		{
+			id: 'relacionSeleccionadas1',
+			label: 'Áreas internas de la secretaría',
+			placeholder: 'seleccionar',
+			options: filtrarAreas('interna_extensión'),
+			value: relacionSeleccionadas1,
+			onChange: setRelacionSeleccionadas1,
+		},
 	];
 
 	return (
