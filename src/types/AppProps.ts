@@ -73,6 +73,10 @@ export interface ListaMeta {
 	resultado: string;
 	observaciones: null;
 	valoracion: number;
+	cantidades?: {
+		tipo: 'Cursos' | 'Talleres' | 'Estudiantes' | 'Inscriptos' | 'Aprobados';
+		cantidad: number;
+	}[];
 }
 
 // PROGRAMAS

@@ -64,6 +64,14 @@ export interface Meta {
 	observaciones: string;
 	valoracion: number;
 	nombreValoracion?: string;
+	cantidades?: MetaCantidad[];
+}
+
+export type MetaCantidadTipo = 'Cursos' | 'Talleres' | 'Estudiantes' | 'Inscriptos' | 'Aprobados';
+
+export interface MetaCantidad {
+	tipo: MetaCantidadTipo;
+	cantidad: number;
 }
 
 export interface Ubicacione {

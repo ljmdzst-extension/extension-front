@@ -7,7 +7,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Badge, Button, Form, Modal, Table } from 'react-bootstrap';
 import Swal from 'sweetalert2';
-import { Actividad, Meta } from '@/types/ActivityProps';
+import { Actividad, Meta, MetaCantidad, MetaCantidadTipo } from '@/types/ActivityProps';
 
 interface Valoracion {
 	idValoracion: number;
@@ -20,6 +20,7 @@ const defaultNuevaMeta: Meta = {
 	resultado: '',
 	observaciones: '',
 	valoracion: 5,
+	cantidades: [],
 };
 
 interface Props {
@@ -34,6 +35,8 @@ const FormMetas = ({ activity, saveData }: Props) => {
 	const [valoraciones, setValoraciones] = useState<Valoracion[]>([]);
 	const [showModal, setShowModal] = useState(false);
 	const indexCurrentMeta = useRef(-1);
+	const [tipoCantidad, setTipoCantidad] = useState<MetaCantidadTipo>('Inscriptos');
+	const [cantidad, setCantidad] = useState('');
 
 	useEffect(() => {
 		saveData({ listaMetas: listadoMetas });
@@ -54,7 +57,9 @@ const FormMetas = ({ activity, saveData }: Props) => {
 
 	const botonAgregarMeta = () => {
 		indexCurrentMeta.current = -1;
-		setNuevaMeta(defaultNuevaMeta);
+		setNuevaMeta({ ...defaultNuevaMeta, cantidades: [] });
+		setTipoCantidad('Inscriptos');
+		setCantidad('');
 		openModal();
 	};
 
@@ -73,8 +78,40 @@ const FormMetas = ({ activity, saveData }: Props) => {
 
 	const editarMeta = (index: number) => {
 		indexCurrentMeta.current = index;
-		setNuevaMeta(listadoMetas[index]);
+		setNuevaMeta({
+			...listadoMetas[index],
+			cantidades: listadoMetas[index].cantidades ?? [],
+		});
+		setTipoCantidad('Inscriptos');
+		setCantidad('');
 		openModal();
+	};
+
+	const agregarCantidad = () => {
+		if (!cantidad.trim()) return;
+		const valor = Number(cantidad);
+		if (!Number.isInteger(valor) || valor < 0) return;
+
+		const cantidades = nuevaMeta.cantidades ?? [];
+		const existente = cantidades.findIndex((item) => item.tipo === tipoCantidad);
+		const nuevasCantidades = [...cantidades];
+		const nuevaCantidad: MetaCantidad = { tipo: tipoCantidad, cantidad: valor };
+
+		if (existente >= 0) {
+			nuevasCantidades[existente] = nuevaCantidad;
+		} else {
+			nuevasCantidades.push(nuevaCantidad);
+		}
+
+		setNuevaMeta({ ...nuevaMeta, cantidades: nuevasCantidades });
+		setCantidad('');
+	};
+
+	const eliminarCantidad = (index: number) => {
+		setNuevaMeta({
+			...nuevaMeta,
+			cantidades: (nuevaMeta.cantidades ?? []).filter((_, itemIndex) => itemIndex !== index),
+		});
 	};
 
 	const eliminarMeta = (index: number) => {
@@ -91,7 +128,10 @@ const FormMetas = ({ activity, saveData }: Props) => {
 				<p>Resultado: ${thisMeta.resultado}</p>
 				<p>Observaciones: ${thisMeta.observaciones}</p>
 				<p>Valoracion: ${valoracionesText(thisMeta.valoracion ?? 0)}</p>
-			</div>`,
+				${(thisMeta.cantidades ?? [])
+					.map((item) => `<p>${item.tipo}: ${item.cantidad}</p>`)
+					.join('')}
+				</div>`,
 			confirmButtonText: 'Aceptar',
 			width: '80%',
 		});
@@ -246,6 +286,54 @@ const FormMetas = ({ activity, saveData }: Props) => {
 							</option>
 						))}
 					</Form.Select>
+					<Form.Group>
+						<Form.Label>Cantidades por tipo</Form.Label>
+						<div className='d-flex gap-2'>
+							<Form.Select
+								value={tipoCantidad}
+								onChange={(e) => setTipoCantidad(e.target.value as MetaCantidadTipo)}
+							>
+								<option value='Cursos'>Cursos</option>
+								<option value='Talleres'>Talleres</option>
+								<option value='Estudiantes'>Estudiantes</option>
+								<option value='Inscriptos'>Inscriptos</option>
+								<option value='Aprobados'>Aprobados</option>
+							</Form.Select>
+							<Form.Control
+								type='number'
+								min={0}
+								step={1}
+								placeholder='Cantidad'
+								value={cantidad}
+								onChange={(e) => setCantidad(e.target.value)}
+							/>
+							<Button type='button' onClick={agregarCantidad}>
+								Agregar
+							</Button>
+						</div>
+						{(nuevaMeta.cantidades ?? []).length > 0 && (
+							<Table size='sm' className='mt-3'>
+								<tbody>
+									{nuevaMeta.cantidades?.map((item, index) => (
+										<tr key={item.tipo}>
+											<td>{item.tipo}</td>
+											<td>{item.cantidad}</td>
+											<td className='text-end'>
+												<Button
+													type='button'
+													variant='outline-danger'
+													size='sm'
+													onClick={() => eliminarCantidad(index)}
+												>
+													Eliminar
+												</Button>
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</Table>
+						)}
+					</Form.Group>
 				</Modal.Body>
 				<Modal.Footer>
 					<button className='btn btn-primary-custom' onClick={guardarBotonModal}>

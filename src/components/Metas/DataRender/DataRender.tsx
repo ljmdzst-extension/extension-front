@@ -121,6 +121,11 @@ const DataRender = ({ objectData, spanishTitles }: Props) => {
 										<p>
 											<span>Valoracion:</span> {stringValoracion(meta.valoracion)}
 										</p>
+										{meta.cantidades?.map((item: { tipo: string; cantidad: number }) => (
+											<p key={`${meta.idMeta}-${item.tipo}`}>
+												<span>{item.tipo}:</span> {item.cantidad}
+											</p>
+										))}
 									</Accordion.Body>
 								</Accordion.Item>
 							))}
