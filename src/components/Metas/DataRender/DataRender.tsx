@@ -121,11 +121,14 @@ const DataRender = ({ objectData, spanishTitles }: Props) => {
 										<p>
 											<span>Valoracion:</span> {stringValoracion(meta.valoracion)}
 										</p>
+										{meta.cantidades && meta.cantidades.length > 0 && <h3 className='fs-6 fw-bold mb-3'>Cantidades: </h3>}
+										<>
 										{meta.cantidades?.map((item: { tipo: string; cantidad: number }) => (
-											<p key={`${meta.idMeta}-${item.tipo}`}>
+											<ul key={`${meta.idMeta}-${item.tipo}`}>
 												<span>{item.tipo}:</span> {item.cantidad}
-											</p>
+											</ul>
 										))}
+										</>
 									</Accordion.Body>
 								</Accordion.Item>
 							))}

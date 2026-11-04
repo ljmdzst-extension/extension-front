@@ -124,12 +124,13 @@ const FormMetas = ({ activity, saveData }: Props) => {
 		Swal.fire({
 			html: `
 			<div style='text-align: start;'>
-				<p>Descripcion: ${thisMeta.descripcion}</p>
+				<h3 style='margin-bottom: 10px;'>Detalles de la Meta: ${thisMeta.descripcion}</h3>
 				<p>Resultado: ${thisMeta.resultado}</p>
 				<p>Observaciones: ${thisMeta.observaciones}</p>
 				<p>Valoracion: ${valoracionesText(thisMeta.valoracion ?? 0)}</p>
+				${thisMeta.cantidades && thisMeta.cantidades.length > 0 ? `<p>Cantidades:</p>` : ''}
 				${(thisMeta.cantidades ?? [])
-					.map((item) => `<p>${item.tipo}: ${item.cantidad}</p>`)
+					.map((item) => `<ul>${item.tipo}: ${item.cantidad}</ul>`)
 					.join('')}
 				</div>`,
 			confirmButtonText: 'Aceptar',
