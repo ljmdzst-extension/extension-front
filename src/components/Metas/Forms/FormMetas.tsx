@@ -124,7 +124,8 @@ const FormMetas = ({ activity, saveData }: Props) => {
 		Swal.fire({
 			html: `
 			<div style='text-align: start;'>
-				<h3 style='margin-bottom: 10px;'>Detalles de la Meta: ${thisMeta.descripcion}</h3>
+				<h3>Detalles de la Meta: ${thisMeta.descripcion}</h3>
+				<br />
 				<p>Resultado: ${thisMeta.resultado}</p>
 				<p>Observaciones: ${thisMeta.observaciones}</p>
 				<p>Valoracion: ${valoracionesText(thisMeta.valoracion ?? 0)}</p>
