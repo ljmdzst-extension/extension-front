@@ -123,7 +123,11 @@ const UbicacionActividadScreen = () => {
           {showDistritos ? 'Ocultar Distritos' : 'Mostrar Distritos'}
         </button>
 
-        <MapaUbicacionActividades ubicaciones={ubicaciones} mostrarDistritos={showDistritos} />
+        <MapaUbicacionActividades 
+          ubicaciones={ubicaciones} 
+          mostrarDistritos={showDistritos}
+          height='clamp(500px, 75vh, 900px)'
+        />
       </div>
     </div>
   );

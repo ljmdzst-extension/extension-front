@@ -161,7 +161,11 @@ const InstitutionsScreen = () => {
         </button>
 
 
-        <MostradorMapaInstituciones instituciones={instituciones} mostrarDistritos={showDistritos} />
+        <MostradorMapaInstituciones
+          instituciones={instituciones}
+          mostrarDistritos={showDistritos}
+          height='clamp(500px, 75vh, 900px)'
+        />
       </div>
     </div>
   );

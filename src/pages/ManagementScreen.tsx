@@ -66,10 +66,11 @@ const ManagementScreen = () => {
 								Planificaciones y resultados
 							</Button>
 							<Button
-								className='btn-secondary w-75 my-2'
-								style={{ height: '50px' }}
-								onClick={() => handlerClick('/gestion/proyectos')}
-								disabled
+								href="https://proyectos-extension.unl.edu.ar/"
+  								className="btn-secondary w-75 my-2 mx-auto d-flex align-items-center justify-content-center"
+  								target="_blank"
+  								rel="noopener noreferrer"
+  								style={{ height: '50px' }}
 							>
 								Gestor de Proyectos de Extensión
 							</Button>
